@@ -1,4 +1,7 @@
 <?php
+/**
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Types/GroupTest.php
+ */
 
 namespace Ducha\TelegramBot\Tests\Types;
 
@@ -17,19 +20,19 @@ class GroupTest extends TestCase
         $this->assertEquals(-7, $group->getId(), $message);
     }
 
-    public function testCannotBeCreatedWithPositiveId()
+    public function testGroupCannotBeCreatedWithPositiveId()
     {
         $this->expectException(\InvalidArgumentException::class);
         $group = new Group(7, 'Salut');
     }
 
-    public function testCannotBeCreatedWithZeroId()
+    public function testGroupCannotBeCreatedWithZeroId()
     {
         $this->expectException(\InvalidArgumentException::class);
         $group = new Group(0, 'Salut');
     }
 
-    public function testImplementInterfaces()
+    public function testGroupMustImplementInterfaces()
     {
         $interfaces = class_implements(Group::class);
 

@@ -1,18 +1,19 @@
 <?php
 /**
- * phpunit57 -v -c src/Ducha/TelegramBot/phpunit.xml.dist src/Ducha/TelegramBot/Tests/Commands/PollRemoveCommandTest.php
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Commands/PollRemoveCommandTest.php
  */
 
 namespace Ducha\TelegramBot\Tests\Commands;
 
+use PHPUnit\Framework\TestCase;
 use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Commands\PollRemoveCommand;
-use Sas\CommonBundle\Command\TelegramBotCommand;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Ducha\TelegramBot\Tests\TelegramData;
 
-class PollRemoveCommandTest extends WebTestCase
+class PollRemoveCommandTest extends TestCase
 {
+    use CommandHandlerAwareTrait;
+
     /**
      * @var CommandHandler
      */
@@ -28,18 +29,7 @@ class PollRemoveCommandTest extends WebTestCase
 
     public function setUp()
     {
-        static::$kernel = static::createKernel(array());
-        static::$kernel->boot();
-
-        $container = static::$kernel->getContainer();
-
-        $bot = new TelegramBotCommand();
-        $bot->setContainer($container);
-        $bot->setTelegram();
-        $bot->getTelegram()->setMode('test');
-        $bot->setPredis();
-
-        $this->handler = new CommandHandler($container, $bot);
+        $this->handler = $this->getCommandHandler();
         $this->command = new PollRemoveCommand($this->handler);
         $this->data = TelegramData::$data;
         $this->data['message']['text'] = '/pollremove';
@@ -50,7 +40,6 @@ class PollRemoveCommandTest extends WebTestCase
         $this->handler = null;
         $this->command = null;
     }
-
 
     public function testIsApplicable()
     {

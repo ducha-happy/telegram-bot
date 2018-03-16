@@ -1,10 +1,11 @@
 <?php
 /**
- * phpunit57 -v -c src/Ducha/TelegramBot/phpunit.xml.dist src/Ducha/TelegramBot/Tests/Poll/PollSurveyTest.php
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Poll/PollSurveyTest.php
  */
 
 namespace Ducha\TelegramBot\Tests\Poll;
 
+use PHPUnit\Framework\TestCase;
 use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Commands\PollStartCommand;
 use Ducha\TelegramBot\GroupManagerInterface;
@@ -13,17 +14,16 @@ use Ducha\TelegramBot\Poll\PollQuestion;
 use Ducha\TelegramBot\Telegram;
 use Ducha\TelegramBot\Tests\Helpers\GroupManagerHelper;
 use Ducha\TelegramBot\Tests\PrivateProtectedAwareTrait;
-use Sas\CommonBundle\Command\TelegramBotCommand;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Ducha\TelegramBot\Tests\TelegramData;
 use Ducha\TelegramBot\Commands\PollSurveyListCommand;
 use Ducha\TelegramBot\Storage\StorageInterface;
 use Ducha\TelegramBot\Tests\Helpers\PollSurveyHelper;
+use Ducha\TelegramBot\Tests\Commands\CommandHandlerAwareTrait;
 
-
-class PollSurveyTest extends WebTestCase
+class PollSurveyTest extends TestCase
 {
     use PrivateProtectedAwareTrait;
+    use CommandHandlerAwareTrait;
 
     /**
      * @var CommandHandler
@@ -59,18 +59,7 @@ class PollSurveyTest extends WebTestCase
 
     public function setUp()
     {
-        static::$kernel = static::createKernel(array());
-        static::$kernel->boot();
-
-        $container = static::$kernel->getContainer();
-
-        $bot = new TelegramBotCommand();
-        $bot->setContainer($container);
-        $bot->setTelegram();
-        $bot->getTelegram()->setMode('silent');
-        $bot->setPredis();
-
-        $this->handler = new CommandHandler($container, $bot);
+        $this->handler = $this->getCommandHandler();
 
         $command = new PollSurveyListCommand($this->handler);
         $this->storage = $command->getStorage();
@@ -94,7 +83,7 @@ class PollSurveyTest extends WebTestCase
         $group = $this->groupManager->addGroup($groupId, 'testGroup');
         $group[$userId] = TelegramData::$data['message']['from'];
 
-        $this->survey = new PollSurveyHelper($groupId,  $poll,  $this->telegram,  $this->storage,  $this->groupManager);
+        $this->survey = new PollSurveyHelper($groupId,  $poll,  $this->telegram,  $this->storage,  $this->handler);
         $this->survey->start($message);
     }
 

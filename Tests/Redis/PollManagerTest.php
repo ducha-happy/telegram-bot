@@ -1,7 +1,7 @@
 <?php
 
 /**
- * phpunit57 -v -c src/Ducha/TelegramBot/phpunit.xml.dist src/Ducha/TelegramBot/Tests/Redis/RedisPollManagerTest.php
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Redis/PollManagerTest.php
  */
 
 namespace Ducha\TelegramBot\Tests\Redis;
@@ -10,10 +10,9 @@ use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Redis\PollManager;
 use Predis\Client as Redis;
 use Ducha\TelegramBot\Storage\RedisStorage;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Sas\CommonBundle\Command\TelegramBotCommand;
+use PHPUnit\Framework\TestCase;
 
-class PollManagerTest extends WebTestCase
+class PollManagerTest extends TestCase
 {
     /**
      * @var PollManager
@@ -22,17 +21,6 @@ class PollManagerTest extends WebTestCase
 
     public function setUp()
     {
-        static::$kernel = static::createKernel(array());
-        static::$kernel->boot();
-
-        $container = static::$kernel->getContainer();
-
-        $bot = new TelegramBotCommand();
-        $bot->setContainer($container);
-        $bot->setTelegram();
-        $bot->getTelegram()->setMode('test');
-        $bot->setPredis();
-
         $storage = new RedisStorage(new Redis());
         $this->pollManager = new PollManager($storage);
     }

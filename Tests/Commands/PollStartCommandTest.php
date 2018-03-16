@@ -1,24 +1,24 @@
 <?php
 
 /**
- * phpunit57 -v -c src/Ducha/TelegramBot/phpunit.xml.dist src/Ducha/TelegramBot/Tests/Commands/PollStartCommandTest.php
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Commands/PollStartCommandTest.php
  */
 
 namespace Ducha\TelegramBot\Tests\Commands;
 
+use PHPUnit\Framework\TestCase;
 use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Commands\PollStartCommand;
 use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Poll\PollManagerInterface;
 use Ducha\TelegramBot\Poll\PollSurvey;
 use Ducha\TelegramBot\Tests\PrivateProtectedAwareTrait;
-use Sas\CommonBundle\Command\TelegramBotCommand;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Ducha\TelegramBot\Tests\TelegramData;
 
-class PollStartCommandTest extends WebTestCase
+class PollStartCommandTest extends TestCase
 {
     use PrivateProtectedAwareTrait;
+    use CommandHandlerAwareTrait;
 
     /**
      * @var PollManagerInterface
@@ -39,18 +39,7 @@ class PollStartCommandTest extends WebTestCase
 
     public function setUp()
     {
-        static::$kernel = static::createKernel(array());
-        static::$kernel->boot();
-
-        $container = static::$kernel->getContainer();
-
-        $bot = new TelegramBotCommand();
-        $bot->setContainer($container);
-        $bot->setTelegram();
-        $bot->getTelegram()->setMode('test');
-        $bot->setPredis();
-
-        $this->handler = new CommandHandler($container, $bot);
+        $this->handler = $this->getCommandHandler();
         $this->command = new PollStartCommand($this->handler);
         $this->data = TelegramData::$data;
         $this->data['message']['text'] = '/pollstart';
@@ -139,7 +128,7 @@ class PollStartCommandTest extends WebTestCase
         $type = 'private';
         $this->assertFalse($this->command->isChatTypeAvailable($type), sprintf($message, $type, 'false'));
         $type = 'supergroup';
-        $this->assertFalse($this->command->isChatTypeAvailable($type), sprintf($message, $type, 'false'));
+        $this->assertTrue($this->command->isChatTypeAvailable($type), sprintf($message, $type, 'false'));
         $type = 'channel';
         $this->assertFalse($this->command->isChatTypeAvailable($type), sprintf($message, $type, 'false'));
     }

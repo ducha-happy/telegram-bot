@@ -18,7 +18,7 @@ error_reporting(-1);
  */
 date_default_timezone_set('UTC');
 
-$autoloader = __DIR__ . '/../../vendor/autoload.php';
+$autoloader = __DIR__ . '/../vendor/autoload.php';
 
 /*
  * Check that composer installation was done.
@@ -36,3 +36,23 @@ require_once $autoloader;
  * Unset global variables that are no longer needed.
  */
 unset($autoloader);
+
+spl_autoload_register(
+    function($class) {
+        static $classes = null;
+        if ($classes === null) {
+            $classes = array(
+                'ducha\\telegrambot\\tests\\telegramdata' => '/TelegramData.php',
+                'ducha\\telegrambot\\tests\\privateprotectedawaretrait' => '/PrivateProtectedAwareTrait.php',
+                'ducha\\telegrambot\\tests\\helpers\\pollsurveyhelper' => '/Helpers/PollSurveyHelper.php',
+                'ducha\\telegrambot\\tests\\helpers\\groupmanagerhelper' => '/Helpers/GroupManagerHelper.php',
+                'ducha\\telegrambot\\tests\\commands\\commandhandlerawaretrait' => '/Commands/CommandHandlerAwareTrait.php'
+            );
+        }
+        $cn = strtolower($class);
+        if (isset($classes[$cn])) {
+            require __DIR__ . $classes[$cn];
+        }
+    }
+);
+

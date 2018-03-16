@@ -1,0 +1,23 @@
+services:
+    ducha.telegram-bot.telegram:
+        class: Ducha\TelegramBot\Telegram
+        arguments: ['%telegram_bot_token%']
+
+    ducha.telegram-bot.predis:
+        class: Predis\Client
+
+    ducha.telegram-bot.storage:
+        class: Ducha\TelegramBot\Storage\RedisStorage
+        arguments: ['@ducha.telegram-bot.predis']
+
+    ducha.telegram-bot.poll.manager:
+        class: Ducha\TelegramBot\Redis\PollManager
+        arguments: ['@ducha.telegram-bot.storage']
+
+    ducha.telegram-bot.poll.stat.manager:
+            class: Ducha\TelegramBot\Redis\PollStatManager
+            arguments: ['@ducha.telegram-bot.storage']
+
+    ducha.telegram-bot.group.manager:
+        class: Ducha\TelegramBot\Redis\GroupManager
+        arguments: ['@ducha.telegram-bot.storage']

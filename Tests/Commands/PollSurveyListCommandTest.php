@@ -1,19 +1,20 @@
 <?php
 /**
- * phpunit57 -v -c src/Ducha/TelegramBot/phpunit.xml.dist src/Ducha/TelegramBot/Tests/Commands/PollSurveyListCommandTest.php
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Commands/PollSurveyListCommandTest.php
  */
 
 namespace Ducha\TelegramBot\Tests\Commands;
 
+use PHPUnit\Framework\TestCase;
 use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Commands\PollSurveyListCommand;
 use Ducha\TelegramBot\Poll\PollSurvey;
-use Sas\CommonBundle\Command\TelegramBotCommand;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Ducha\TelegramBot\Tests\TelegramData;
 
-class PollSurveyListCommandTest extends WebTestCase
+class PollSurveyListCommandTest extends TestCase
 {
+    use CommandHandlerAwareTrait;
+
     /**
      * @var CommandHandler
      */
@@ -29,18 +30,7 @@ class PollSurveyListCommandTest extends WebTestCase
 
     public function setUp()
     {
-        static::$kernel = static::createKernel(array());
-        static::$kernel->boot();
-
-        $container = static::$kernel->getContainer();
-
-        $bot = new TelegramBotCommand();
-        $bot->setContainer($container);
-        $bot->setTelegram();
-        $bot->getTelegram()->setMode('test');
-        $bot->setPredis();
-
-        $this->handler = new CommandHandler($container, $bot);
+        $this->handler = $this->getCommandHandler();
         $this->command = new PollSurveyListCommand($this->handler);
         $this->data = TelegramData::$data;
         $this->data['message']['text'] = '/surveylist';

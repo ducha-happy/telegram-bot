@@ -1,20 +1,17 @@
 <?php
 /**
- * phpunit57 -v -c src/Ducha/TelegramBot/phpunit.xml.dist src/Ducha/TelegramBot/Tests/Redis/GroupManagerTest.php
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Redis/GroupManagerTest.php
  */
 
 namespace Ducha\TelegramBot\Tests\Redis;
 
-
 use Ducha\TelegramBot\Types\Group;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Predis\Client as Redis;
 use Ducha\TelegramBot\Storage\RedisStorage;
-use Sas\CommonBundle\Command\TelegramBotCommand;
 use Ducha\TelegramBot\Redis\GroupManager;
+use PHPUnit\Framework\TestCase;
 
-
-class GroupManagerTest extends WebTestCase
+class GroupManagerTest extends TestCase
 {
     /**
      * @var GroupManager
@@ -27,17 +24,6 @@ class GroupManagerTest extends WebTestCase
 
     public function setUp()
     {
-        static::$kernel = static::createKernel(array());
-        static::$kernel->boot();
-
-        $container = static::$kernel->getContainer();
-
-        $bot = new TelegramBotCommand();
-        $bot->setContainer($container);
-        $bot->setTelegram();
-        $bot->getTelegram()->setMode('test');
-        $bot->setPredis();
-
         $this->storage = new RedisStorage(new Redis());
         $this->groupManager = new GroupManager($this->storage);
     }

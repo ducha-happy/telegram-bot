@@ -1,0 +1,6 @@
+parameters:
+    telegram_bot_link       : "http://t.me/YourBotName"
+    telegram_bot_token      : "YourBotToken"
+    telegram_admin_chat_id  : "YourAdminChatId"
+    telegram_bot_log_dir    : "%root_dir%/app/logs"
+    telegram_bot_log_file_name   : "telegram-bot.log"

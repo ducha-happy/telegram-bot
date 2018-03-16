@@ -1,18 +1,19 @@
 <?php
 /**
- * phpunit57 -v -c src/Ducha/TelegramBot/phpunit.xml.dist src/Ducha/TelegramBot/Tests/Commands/PollShowCommandTest.php
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Commands/PollShowCommandTest.php
  */
 
 namespace Ducha\TelegramBot\Tests\Commands;
 
+use PHPUnit\Framework\TestCase;
 use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Commands\PollShowCommand;
-use Sas\CommonBundle\Command\TelegramBotCommand;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Ducha\TelegramBot\Tests\TelegramData;
 
-class PollShowCommandTest extends WebTestCase
+class PollShowCommandTest extends TestCase
 {
+    use CommandHandlerAwareTrait;
+
     /**
      * @var CommandHandler
      */
@@ -28,18 +29,7 @@ class PollShowCommandTest extends WebTestCase
 
     public function setUp()
     {
-        static::$kernel = static::createKernel(array());
-        static::$kernel->boot();
-
-        $container = static::$kernel->getContainer();
-
-        $bot = new TelegramBotCommand();
-        $bot->setContainer($container);
-        $bot->setTelegram();
-        $bot->getTelegram()->setMode('test');
-        $bot->setPredis();
-
-        $this->handler = new CommandHandler($container, $bot);
+        $this->handler = $this->getCommandHandler();
         $this->command = new PollShowCommand($this->handler);
         $this->data = TelegramData::$data;
         $this->data['message']['text'] = '/pollshow';

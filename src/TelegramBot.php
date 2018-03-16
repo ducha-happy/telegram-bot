@@ -81,20 +81,9 @@ class TelegramBot implements ContainerAwareInterface
         $this->telegram->setLogDir($this->getLogDir());
     }
 
-    public function getLogFile()
-    {
-        return $this->getLogDir() . "/bot.log";
-    }
-
     public function getLogDir()
     {
-        $logDir = $this->getContainer()->getParameter('telegram_bot_log_dir');
-
-        if (!file_exists($logDir)){
-            mkdir($logDir, 0777, true);
-        }
-
-        return $logDir;
+        return $this->getContainer()->getParameter('telegram_bot_log_dir');
     }
 
     public function execute()
@@ -142,10 +131,6 @@ class TelegramBot implements ContainerAwareInterface
         // Start writing log-file
         $this->logger->info(self::START_MESSAGE);
 
-//        $fLog = fopen($this->getLogFile(), 'a');
-//        $startMessage = date("d.m.Y H:i:s") . self::START_MESSAGE;
-//        fwrite($fLog, $startMessage);
-
         // Open and try to Lock «running» file, so only one process will be alive
         $fR = fopen($this->fileOfProcess, 'w');
         $fl = flock($fR, LOCK_EX | LOCK_NB);
@@ -156,10 +141,8 @@ class TelegramBot implements ContainerAwareInterface
     public function kill()
     {
         $this->logger->info(self::STOP_MESSAGE);
-
-//        $fLog = fopen($this->getLogFile(), 'a');
-//        fwrite($fLog, date("d.m.Y H:i:s") . self::STOP_MESSAGE);
         unlink($this->fileOfProcess);
+
         exit();
     }
 

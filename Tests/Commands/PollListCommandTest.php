@@ -1,15 +1,19 @@
 <?php
+/**
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Commands/PollListCommandTest.php
+ */
 
 namespace Ducha\TelegramBot\Tests\Commands;
 
+use PHPUnit\Framework\TestCase;
 use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Commands\PollListCommand;
-use Sas\CommonBundle\Command\TelegramBotCommand;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Ducha\TelegramBot\Tests\TelegramData;
 
-class PollListCommandTest extends WebTestCase
+class PollListCommandTest extends TestCase
 {
+    use CommandHandlerAwareTrait;
+
     /**
      * @var CommandHandler
      */
@@ -25,18 +29,7 @@ class PollListCommandTest extends WebTestCase
 
     public function setUp()
     {
-        static::$kernel = static::createKernel(array());
-        static::$kernel->boot();
-
-        $container = static::$kernel->getContainer();
-
-        $bot = new TelegramBotCommand();
-        $bot->setContainer($container);
-        $bot->setTelegram();
-        $bot->getTelegram()->setMode('test');
-        $bot->setPredis();
-
-        $this->handler = new CommandHandler($container, $bot);
+        $this->handler = $this->getCommandHandler();
         $this->command = new PollListCommand($this->handler);
         $this->data = TelegramData::$data;
         $this->data['message']['text'] = '/polllist';
@@ -63,5 +56,4 @@ class PollListCommandTest extends WebTestCase
         $data['message']['chat']['type'] = 'private';
         $this->assertTrue($this->command->isApplicable($data), sprintf($warning2, 'true'));
     }
-
 }

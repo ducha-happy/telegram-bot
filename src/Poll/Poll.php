@@ -34,15 +34,6 @@ class Poll
         $this->questions = $questions;
     }
 
-    /**
-     * @param int $id
-     * @return string
-     */
-    public static function getStorageKey($id)
-    {
-        return sprintf('telegram.poll.%s', $id);
-    }
-
     public function getId()
     {
         return $this->id;

@@ -6,13 +6,12 @@ use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\GroupManagerInterface;
 use Ducha\TelegramBot\Poll\PollManagerInterface;
 use Ducha\TelegramBot\Poll\PollStatManagerInterface;
-use Ducha\TelegramBot\Redis\PollStatManager;
 use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Ducha\TelegramBot\Types\CallbackQuery;
 use Ducha\TelegramBot\Types\InlineKeyboardButton;
 use Ducha\TelegramBot\Types\InlineKeyboardMarkup;
 
-class PollStatCommand extends AbstractCommand
+class PollSurveyShowListCommand extends AbstractCommand
 {
     /**
      * @var PollManagerInterface
@@ -26,6 +25,10 @@ class PollStatCommand extends AbstractCommand
      * @var PollStatManagerInterface
      */
     protected $statManager;
+    /**
+     * @var array
+     */
+    protected $userPolls;
 
     public function __construct(CommandHandler $handler)
     {
@@ -33,7 +36,7 @@ class PollStatCommand extends AbstractCommand
 
         $this->groupManager = $this->handler->getGroupManager();
         $this->pollManager = $this->handler->getPollManager();
-        $this->statManager = $this->handler->getPollStatManager();
+        $this->statManager = $this->handler->getPollSurveyStatManager();
     }
 
     /**
@@ -42,7 +45,7 @@ class PollStatCommand extends AbstractCommand
      */
     public static function getName()
     {
-        return '/pollstat';
+        return '/surveyshowlist';
     }
 
     /**
@@ -51,7 +54,23 @@ class PollStatCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'Show list of completed polls for a chat.';
+        return 'Show list of running and completed surveys. This command is available only for private chats and show polls(surveys) of those users.';
+    }
+
+    protected function filterKeys($keys, $pattern)
+    {
+        $fKeys = array();
+        $temp = explode('.', $pattern);
+        $temp[3] = '-\d{1,}'; $temp[4] = '\d{1,}';
+        $pattern = '|' . implode('\.', $temp) . '|';
+
+        foreach ($keys as $key){
+            if (preg_match($pattern, $key)){
+                $fKeys[] = $key;
+            }
+        }
+
+        return $fKeys;
     }
 
     /**
@@ -59,16 +78,22 @@ class PollStatCommand extends AbstractCommand
      */
     protected function getKeys()
     {
-        $pattern = sprintf(StorageKeysHolder::getCompletedSurveyPattern(), '*', '*');
+        $pattern = sprintf(StorageKeysHolder::getNotCompletedSurveyPattern(), '*', '*');
         $keys = $this->storage->keys($pattern);
+        $keys = $this->filterKeys($keys, $pattern);
+
         $lines = array();
         foreach ($keys as $key){
             $temp = explode(".", $key);
             $pollId = array_pop($temp);
-            $chatId = array_pop($temp);
-            $poll = $this->pollManager->getPollById($pollId);
-            $group = $this->groupManager->getGroup($chatId);
-            $lines[$chatId.'.'.$pollId] = $group->getTitle() . ' - ' . $poll->getName();
+            if (!empty($this->userPolls)){
+                if (array_search($pollId, $this->userPolls) !== false){
+                    $chatId = array_pop($temp);
+                    $poll = $this->pollManager->getPollById($pollId);
+                    $group = $this->groupManager->getGroup($chatId);
+                    $lines[$chatId.'.'.$pollId] = $group->getTitle() . ' - ' . $poll->getName();
+                }
+            }
         }
 
         return $lines;
@@ -76,22 +101,26 @@ class PollStatCommand extends AbstractCommand
 
     protected function showMainMenu($chatId, $start = false)
     {
-        $text = 'Which poll do you want to look at';
         $replies = $this->getKeys();
-
-        $buttons = array();
-        foreach ($replies as $key => $value){
-            $buttons[] = array(new InlineKeyboardButton($value, '', $key));
-        }
-        $keyboard = new InlineKeyboardMarkup($buttons);
-        $keyboard = json_encode($keyboard);
-        $replyMessageId = $this->getReplyMessageId($chatId);
-        if (empty($replyMessageId) || $start){
-            $response = $this->telegram->sendMessage($chatId, $text,  'HTML', false, null, $keyboard);
-            $this->setReplyMessageId($chatId, $response['result']['message_id']);
+        if (empty($replies)){
+            $text = 'You don`t have any uncompleted poll surveys now. Try next time.';
+            $this->telegram->sendMessage($chatId, $text);
         }else{
-            $this->telegram->editMessageText($chatId, $replyMessageId, '', $text);
-            $this->telegram->editMessageReplyMarkup($chatId, $replyMessageId, '', $keyboard);
+            $text = 'Which poll survey do you want to look at ?';
+            $buttons = array();
+            foreach ($replies as $key => $value){
+                $buttons[] = array(new InlineKeyboardButton($value, '', $key));
+            }
+            $keyboard = new InlineKeyboardMarkup($buttons);
+            $keyboard = json_encode($keyboard);
+            $replyMessageId = $this->getReplyMessageId($chatId);
+            if (empty($replyMessageId) || $start){
+                $response = $this->telegram->sendMessage($chatId, $text,  'HTML', false, null, $keyboard);
+                $this->setReplyMessageId($chatId, $response['result']['message_id']);
+            }else{
+                $this->telegram->editMessageText($chatId, $replyMessageId, '', $text);
+                $this->telegram->editMessageReplyMarkup($chatId, $replyMessageId, '', $keyboard);
+            }
         }
     }
 
@@ -104,7 +133,7 @@ class PollStatCommand extends AbstractCommand
 
         $text = $this->statManager->getStat($data[0], $data[1]);
         $buttons = array(
-            array(new InlineKeyboardButton('LIST OF POLLS', '', 'list'))
+            array(new InlineKeyboardButton('LIST OF SURVEYS', '', 'list'))
         );
         $keyboard = new InlineKeyboardMarkup($buttons);
         $keyboard = json_encode($keyboard);
@@ -120,6 +149,7 @@ class PollStatCommand extends AbstractCommand
     {
         if ($this->hasMessage($data)){
             $message = $this->getMessage($data);
+            $this->setUserPolls($message->getUserId());
             $this->showMainMenu($message->getChatId(), true);
         }elseif ($this->hasCallbackQuery($data)){
             $callback = $this->getCallbackQuery($data);
@@ -127,6 +157,7 @@ class PollStatCommand extends AbstractCommand
             $from = $callback->getFrom();
             $chatId = $from['id'];
             if ($this->getReplyMessageId($chatId) == $message->getId()){
+                $this->setUserPolls($chatId);
                 $reply = $callback->getData();
                 if (array_search($reply, array_keys($this->getKeys())) !== false){
                     $this->showResult($chatId, $callback);
@@ -135,6 +166,29 @@ class PollStatCommand extends AbstractCommand
                 }
             }
         }
+    }
+
+    protected function setUserPolls($userId)
+    {
+        $this->userPolls = $this->storage->get(StorageKeysHolder::getUserPollsKey($userId));
+    }
+
+    /**
+     * @param int $chatId private chat
+     * @return int|null
+     */
+    protected function getReplyMessageId($chatId)
+    {
+        return $this->storage->get(StorageKeysHolder::getSurveyReplyMessageIdKey($chatId));
+    }
+
+    /**
+     * @param int $chatId private chat
+     * @param int $messageId for which
+     */
+    protected function setReplyMessageId($chatId, $messageId)
+    {
+        $this->storage->set(StorageKeysHolder::getSurveyReplyMessageIdKey($chatId), $messageId);
     }
 
     /**
@@ -159,40 +213,14 @@ class PollStatCommand extends AbstractCommand
             $message = $callback->getMessage(); $chatId = $message->getChatId();
             if ($this->getReplyMessageId($chatId) == $message->getId()){
                 $reply = $callback->getData();
-                if (array_search($reply, array_keys($this->getKeys())) !== false || $reply == 'list'){
+                // array_search($reply, array_keys($this->getKeys())) !== false
+                if (array_key_exists($reply, $this->getKeys()) || $reply == 'list'){
                     return true;
                 }
             }
         }
 
         return false;
-    }
-
-    /**
-     * @param int $chatId private chat
-     * @return string
-     */
-    protected function getStorageKey($chatId)
-    {
-        return StorageKeysHolder::getCompletedSurveyReplyMessageIdKey($chatId);
-    }
-
-    /**
-     * @param int $chatId private chat
-     * @return int|null
-     */
-    protected function getReplyMessageId($chatId)
-    {
-        return $this->storage->get($this->getStorageKey($chatId));
-    }
-
-    /**
-     * @param int $chatId private chat
-     * @param int $messageId for which
-     */
-    protected function setReplyMessageId($chatId, $messageId)
-    {
-        $this->storage->set($this->getStorageKey($chatId), $messageId);
     }
 
     /**

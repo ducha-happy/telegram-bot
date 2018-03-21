@@ -5,6 +5,7 @@ namespace Ducha\TelegramBot\Redis;
 use Ducha\TelegramBot\Storage\RedisStorage;
 use Ducha\TelegramBot\Poll\PollManagerInterface;
 use Ducha\TelegramBot\Poll\Poll;
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
 
 class PollManager implements PollManagerInterface
 {
@@ -43,7 +44,7 @@ class PollManager implements PollManagerInterface
      */
     public function getPollById($id)
     {
-        $key = $this->storage->getStorageKey(array('poll', $id));
+        $key = StorageKeysHolder::getPollKey($id);
 
         return $this->storage->get($key);
     }
@@ -54,10 +55,10 @@ class PollManager implements PollManagerInterface
     public function getPollsByUserId($userId)
     {
         $polls = array();
-        $key = $this->storage->getStorageKey(array('polls', $userId));
+        $key = StorageKeysHolder::getUserPollsKey($userId);
         $list = $this->storage->getList($key);
         foreach ($list as $id){
-            $key = $this->storage->getStorageKey(array('poll', $id));
+            $key = StorageKeysHolder::getPollKey($id);
             $polls[] = $this->storage->get($key);
         }
 
@@ -79,8 +80,8 @@ class PollManager implements PollManagerInterface
         }
 
         $id = $poll->getId();
-        $this->storage->set($this->storage->getStorageKey(array('poll', $id)), $poll);
-        $this->storage->addToList($this->storage->getStorageKey(array('polls', $userId)), $id);
+        $this->storage->set( StorageKeysHolder::getPollKey($id) , $poll);
+        $this->storage->addToList(StorageKeysHolder::getUserPollsKey($userId), $id);
     }
 
     /**
@@ -91,10 +92,9 @@ class PollManager implements PollManagerInterface
         $poll = $this->getPollById($id);
         if ($poll instanceof Poll){
             $userId = $poll->getUserId();
-            $key = $this->storage->getStorageKey(array('polls', $userId));
+            $key = StorageKeysHolder::getUserPollsKey($userId);
             $this->storage->removeFromList($key, $id);
-
-            $key = $this->storage->getStorageKey(array('poll', $id));
+            $key = StorageKeysHolder::getPollKey($id);
             $this->storage->remove($key);
             $this->storage->clear(PollStatManager::getStatStorageKey('*', $id));
 

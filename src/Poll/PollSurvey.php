@@ -6,6 +6,7 @@ use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Formatter\HtmlFormatter;
 use Ducha\TelegramBot\GroupManagerInterface;
 use Ducha\TelegramBot\Storage\StorageInterface;
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Ducha\TelegramBot\Types\Message;
 use Ducha\TelegramBot\Telegram;
 use Ducha\TelegramBot\Types\ReplyKeyboardRemove;
@@ -80,15 +81,16 @@ class PollSurvey implements \Serializable
     /**
      * Get PollSurvey instance from storage.
      *
-     * @param string $chatId
+     * @param int $chatId
+     * @param int $pollId
      * @param Telegram $telegram
      * @param StorageInterface $storage
      * @param CommandHandler $handler
      * @return PollSurvey|false
      */
-    public static function getInstance($chatId, Telegram $telegram, StorageInterface $storage, CommandHandler $handler)
+    public static function getInstance($chatId, $pollId, Telegram $telegram, StorageInterface $storage, CommandHandler $handler)
     {
-        $temp = $storage->get(self::getStorageKey($chatId));
+        $temp = $storage->get(self::getStorageKey($chatId, $pollId));
         if ($temp instanceof PollSurvey){
             $temp->setServices($telegram, $storage, $handler);
 
@@ -111,7 +113,7 @@ class PollSurvey implements \Serializable
         $this->groupManager = $handler->getGroupManager();
 
         if (property_exists($this, 'poll_id')){
-            $key = Poll::getStorageKey($this->poll_id);
+            $key = StorageKeysHolder::getPollKey($this->poll_id);
             $this->poll = $this->storage->get($key);
         }
 
@@ -219,7 +221,7 @@ class PollSurvey implements \Serializable
                 if ($item['message_id'] == $replyToMessage['message_id']){
                     $item['replies'][ $from['id'] ] = array('from' => $from, 'text' => $message->getText());
                     $this->haveAllRepliesFor($item);
-                    $this->storage->set(self::getStorageKey($this->chat_id), $this);
+                    $this->storage->set(self::getStorageKey($this->chat_id, $this->poll->getId()), $this);
 
                     $keyboard = new ReplyKeyboardRemove(true, true);
                     $keyboard = json_encode($keyboard);
@@ -271,11 +273,12 @@ class PollSurvey implements \Serializable
     /**
      * The key using in a process of survey
      * @param int $chatId
+     * @param int $pollId
      * @return string
      */
-    public static function getStorageKey($chatId)
+    public static function getStorageKey($chatId, $pollId)
     {
-        return sprintf('telegram.poll.survey.%s', $chatId);
+        return sprintf(StorageKeysHolder::getNotCompletedSurveyPattern(), $chatId, $pollId);
     }
 
     /**
@@ -287,7 +290,7 @@ class PollSurvey implements \Serializable
         $keyboard = json_encode($keyboard);
 
         $this->statManager->setStat($this->chat_id, $this->poll->getId(), $this);
-        $this->storage->remove(self::getStorageKey($this->chat_id));
+        $this->storage->remove(self::getStorageKey($this->chat_id, $this->poll->getId()));
         $result = $this->statManager->getStat($this->chat_id, $this->poll->getId());
 
         $text = HtmlFormatter::bold('This poll is finished! Thank you for your replies!');
@@ -341,19 +344,19 @@ class PollSurvey implements \Serializable
             $response = $this->telegram->sendMessage($this->chat_id, $question->getTitle(), 'HTML', false, null, $question->getMarkup());
             if ($response){
                 $this->setQuestionMessageId($question, $response['result']['message_id']);
-                $this->storage->set(self::getStorageKey($this->chat_id), $this);
+                $this->storage->set(self::getStorageKey($this->chat_id, $this->poll->getId()), $this);
             }
         }
     }
 
     public function save()
     {
-        $this->storage->set(self::getStorageKey($this->chat_id), $this);
+        $this->storage->set(self::getStorageKey($this->chat_id, $this->poll->getId()), $this);
     }
 
     public function get()
     {
-        $this->storage->get(self::getStorageKey($this->chat_id));
+        $this->storage->get(self::getStorageKey($this->chat_id, $this->poll->getId()));
     }
    
 }

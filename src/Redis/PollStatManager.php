@@ -7,6 +7,7 @@ use Ducha\TelegramBot\Poll\PollStatManagerInterface;
 use Ducha\TelegramBot\Poll\PollSurvey;
 use Ducha\TelegramBot\Storage\RedisStorage;
 use Ducha\TelegramBot\Poll\Poll;
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Ducha\TelegramBot\Types\Group;
 
 class PollStatManager implements PollStatManagerInterface
@@ -32,8 +33,7 @@ class PollStatManager implements PollStatManagerInterface
      */
     public static function getStatStorageKey($chatId, $pollId)
     {
-//        return sprintf('telegram.polls.stat.%s.%s', $chatId, $pollId);
-        return sprintf('telegram.poll.survey.completed.%s.%s', $chatId, $pollId);
+        return StorageKeysHolder::getCompletedSurveyKey($chatId, $pollId);
     }
 
     public function setStat($chatId, $pollId, $result)
@@ -56,13 +56,13 @@ class PollStatManager implements PollStatManagerInterface
      */
     public function getStat($chatId, $pollId)
     {
-        $key = Poll::getStorageKey($pollId);
+        $key = StorageKeysHolder::getPollKey($pollId);
         $poll = $this->storage->get($key);
         if (!$poll instanceof Poll){
             return false;
         }
 
-        $key = Group::getStorageKey($chatId);
+        $key = StorageKeysHolder::getGroupKey($chatId);
         $group = $this->storage->get($key);
         if (!$group instanceof Group){
             return false;

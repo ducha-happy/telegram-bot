@@ -36,6 +36,8 @@ class PollSurveyRemoveCommand extends AbstractCommand
         $chatId = $this->arguments[0];
         $storage = $this->storage;
 
+        #TODO must be changed - need pollId for key
+
         $key = PollSurvey::getStorageKey($chatId);
         $storage->remove($key);
 

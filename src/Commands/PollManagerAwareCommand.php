@@ -18,6 +18,6 @@ class PollManagerAwareCommand extends AbstractCommand
     {
         parent::__construct($handler);
 
-        $this->pollManager = $this->handler->getContainer()->get('ducha.telegram.poll.manager');
+        $this->pollManager = $this->handler->getContainer()->get('ducha.telegram-bot.poll.manager');
     }
 }

@@ -1,0 +1,130 @@
+redis keys
+----------
+telegram.polls.%userId% - list
+telegram.poll.%id% - Set
+telegram.poll.maxId - Set
+
+telegram.poll.create.
+telegram.poll.completed.%chatId% - set (saves reply_message_id value for callbacks)
+
+telegram.poll.survey.%chatId% - Set
+telegram.poll.survey.completed.%pollId%.%chatId% - Set
+
+telegram.user.%id% - Set
+telegram.group.%id% - Set
+
+telegram.group.-1001242147755 string
+telegram.group.-183860391 string
+telegram.group.-214019835 string
+telegram.poll.1 string
+telegram.poll.2 string
+telegram.poll.6 string
+telegram.poll.7 string
+telegram.poll.8 string
+telegram.poll.completed.374780075 string
+telegram.poll.maxId string
+telegram.poll.survey.-1001242147755 string
+telegram.poll.survey.completed.-1001242147755.8 string
+telegram.poll.survey.completed.-183860391.1 string
+telegram.poll.survey.completed.-214019835.1 string
+telegram.poll.survey.completed.-214019835.6 string
+telegram.poll.survey.completed.-214019835.7 string
+telegram.poll.survey.completed.-214019835.8 string
+telegram.polls.374780075 list
+telegram.polls.99568417 list
+
+Issues to be addressed:
+1) завершённые опросы для чата - давать возможность к их повторению или нет ? как сохранять - привязывать к дате?
+2) опрос - новое свойтво публичный не публичный - доступ к результату опроса
+3) возможность редактировать сохранённый вопрос будем делать?
+
+
+
+array(21) {
+  [0] =>
+  string(15) "telegram.poll.7"
+  [1] =>
+  string(25) "telegram.group.-183860391"
+  [2] =>
+  string(43) "telegram.poll.survey.completed.-183860391.1"
+  [3] =>
+  string(15) "telegram.poll.1"
+  [4] =>
+  string(15) "telegram.poll.8"
+  [5] =>
+  string(24) "telegram.polls.374780075"
+  [6] =>
+  string(43) "telegram.poll.survey.completed.-214019835.6"
+  [7] =>
+  string(35) "telegram.poll.survey.-1001242147755"
+  [8] =>
+  string(15) "telegram.poll.6"
+  [9] =>
+  string(43) "telegram.poll.survey.completed.-214019835.7"
+  [10] =>
+  string(25) "telegram.group.-214019835"
+  [11] =>
+  string(33) "telegram.poll.completed.374780075"
+  [12] =>
+  string(33) "telegram.poll.survey.-214019835.1"
+  [13] =>
+  string(23) "telegram.polls.99568417"
+  [14] =>
+  string(45) "telegram.poll.survey.ReplyMessageId.374780075"
+  [15] =>
+  string(43) "telegram.poll.survey.completed.-214019835.8"
+  [16] =>
+  string(19) "telegram.poll.maxId"
+  [17] =>
+  string(29) "telegram.group.-1001242147755"
+  [18] =>
+  string(43) "telegram.poll.survey.completed.-214019835.1"
+  [19] =>
+  string(47) "telegram.poll.survey.completed.-1001242147755.8"
+  [20] =>
+  string(15) "telegram.poll.2"
+}
+
+
+array(20) {
+  [0] =>
+  string(15) "telegram.poll.7"
+  [1] =>
+  string(25) "telegram.group.-183860391"
+  [2] =>
+  string(43) "telegram.poll.survey.completed.-183860391.1"
+  [3] =>
+  string(15) "telegram.poll.1"
+  [4] =>
+  string(15) "telegram.poll.8"
+  [5] =>
+  string(24) "telegram.polls.374780075"
+  [6] =>
+  string(43) "telegram.poll.survey.completed.-214019835.6"
+  [7] =>
+  string(35) "telegram.poll.survey.-1001242147755"
+  [8] =>
+  string(15) "telegram.poll.6"
+  [9] =>
+  string(43) "telegram.poll.survey.completed.-214019835.7"
+  [10] =>
+  string(25) "telegram.group.-214019835"
+  [11] =>
+  string(33) "telegram.poll.completed.374780075"
+  [12] =>
+  string(23) "telegram.polls.99568417"
+  [13] =>
+  string(45) "telegram.poll.survey.ReplyMessageId.374780075"
+  [14] =>
+  string(43) "telegram.poll.survey.completed.-214019835.8"
+  [15] =>
+  string(19) "telegram.poll.maxId"
+  [16] =>
+  string(29) "telegram.group.-1001242147755"
+  [17] =>
+  string(43) "telegram.poll.survey.completed.-214019835.1"
+  [18] =>
+  string(47) "telegram.poll.survey.completed.-1001242147755.8"
+  [19] =>
+  string(15) "telegram.poll.2"
+}

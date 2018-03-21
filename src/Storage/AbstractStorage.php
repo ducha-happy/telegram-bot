@@ -22,19 +22,6 @@ abstract class AbstractStorage implements StorageInterface
     protected $name;
 
     /**
-     * form a storage key
-     *
-     * @param array $params
-     * @return string
-     */
-    public function getStorageKey(array $params)
-    {
-        array_unshift($params, 'telegram');
-
-        return implode(".", $params);
-    }
-
-    /**
      * @inheritdoc
      */
     public function getId()

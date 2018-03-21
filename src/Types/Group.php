@@ -2,6 +2,8 @@
 
 namespace Ducha\TelegramBot\Types;
 
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
+
 class Group implements \Countable, \ArrayAccess
 {
     /**
@@ -29,7 +31,7 @@ class Group implements \Countable, \ArrayAccess
      */
     public static function getStorageKey($id)
     {
-        return sprintf('telegram.group.%s', $id);
+        return StorageKeysHolder::getGroupKey($id);
     }
 
     /**

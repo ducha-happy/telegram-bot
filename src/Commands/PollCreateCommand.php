@@ -11,6 +11,7 @@ use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Poll\PollQuestion;
 use Ducha\TelegramBot\Redis\PollManager;
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Ducha\TelegramBot\Types\InlineKeyboardButton;
 use Ducha\TelegramBot\Types\InlineKeyboardMarkup;
 use Ducha\TelegramBot\Types\Message;
@@ -35,7 +36,7 @@ class PollCreateCommand extends AbstractCommand
     {
         parent::__construct($handler);
 
-        $this->pollManager = $this->handler->getContainer()->get('ducha.telegram.poll.manager');
+        $this->pollManager = $this->handler->getContainer()->get('ducha.telegram-bot.poll.manager');
     }
 
     /**
@@ -142,7 +143,7 @@ class PollCreateCommand extends AbstractCommand
         $poll['state'] = self::STATE_COMPLETE;
         $this->savePoll($chatId, $poll);
 
-        $id = $this->storage->incr('telegram.poll.maxId');
+        $id = $this->storage->incr(StorageKeysHolder::getPollMaxIdPattern());
         $questions = array();
 
         if (count($poll['questions']) == 0){
@@ -308,7 +309,7 @@ class PollCreateCommand extends AbstractCommand
      */
     protected function getStorageKey($chatId)
     {
-        return 'telegram.poll.create.' . $chatId;
+        return StorageKeysHolder::getPollCreateKey($chatId);
     }
 
     /**

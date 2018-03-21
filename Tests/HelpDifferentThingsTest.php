@@ -1,6 +1,6 @@
 <?php
 /**
- * phpunit57 -v -c src/Ducha/TelegramBot/phpunit.xml.dist src/Ducha/TelegramBot/Tests/HelpDifferentThingsTest.php
+ * phpunit57 -v -c ./phpunit.xml.dist ./Tests/HelpDifferentThingsTest.php
  */
 
 namespace Ducha\TelegramBot\Tests;
@@ -22,7 +22,6 @@ class HelpDifferentThingsTest extends TestCase
         function getBotName(){
             return 'UmaTestBot';
         }
-
         function getName(){
             return '/pollstart';
         }

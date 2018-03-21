@@ -44,7 +44,7 @@ class PollStartCommandTest extends TestCase
         $this->data = TelegramData::$data;
         $this->data['message']['text'] = '/pollstart';
 
-        $this->pollManager = $this->handler->getContainer()->get('ducha.telegram.poll.manager');
+        $this->pollManager = $this->handler->getContainer()->get('ducha.telegram-bot.poll.manager');
     }
 
     public function tearDown()

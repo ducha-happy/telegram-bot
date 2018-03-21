@@ -85,11 +85,17 @@ class RedisStorage extends AbstractStorage
      */
     public function get($key)
     {
-        $data = $this->redis->get($key);
-        $temp = @unserialize($data);
-
-        if ($temp !== false){
-            $data = $temp;
+        switch ($this->redis->type($key)){
+            case 'list':
+                $data = $this->getList($key);
+                break;
+            default:
+                $data = $this->redis->get($key);
+                $temp = @unserialize($data);
+                if ($temp !== false){
+                    $data = $temp;
+                }
+                break;
         }
 
         return $data;
@@ -129,7 +135,7 @@ class RedisStorage extends AbstractStorage
     public function clear($pattern = null)
     {
         if (empty($pattern)){
-            $pattern = 'telegram*';
+            $pattern = StorageKeysHolder::getPrefix().'*';
         }
         $keys = $this->keys($pattern);
         foreach ($keys as $key){

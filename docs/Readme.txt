@@ -1,29 +1,6 @@
-redis keys
-----------
-telegram.polls.%userId% - list
-telegram.poll.%id% - Set
-telegram.poll.maxId - Set
-
-telegram.poll.create.
-telegram.poll.completed.%chatId% - set (saves reply_message_id value for callbacks)
-
-telegram.poll.survey.%chatId% - Set
-telegram.poll.survey.completed.%pollId%.%chatId% - Set
-
-telegram.user.%id% - Set
-telegram.group.%id% - Set
-
-
-Issues to be addressed:
-1) завершённые опросы для чата - давать возможность к их повторению или нет ? как сохранять - привязывать к дате?
-2) опрос - новое свойтво публичный не публичный - доступ к результату опроса
-3) возможность редактировать сохранённый вопрос будем делать?
-
-
 About
 -----
 The bot author - @ducha_v. The bot was created to facilitate the collection of Uma's team for various activities, including football training.
-
 
 
 Автор бота @ducha_v
@@ -60,7 +37,7 @@ Commands
 /ping - Send pong message. This command is only for test.
 /pollstat - Show list of completed polls for a chat.
 
-Below stuff for BotFather
+Below is a stuff for BotFather
 polllist - Show poll list of a user. The command is available only for private chats.
 pollcreate - Create poll. The command is available only for private chats. Formats: 1) pollcreate name ; 2) pollcreate
 pollremove - Remove a poll from poll`s user list. The command is available only for private chats. Format: pollremove number

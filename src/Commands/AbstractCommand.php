@@ -34,7 +34,7 @@ abstract class AbstractCommand implements CommandInterface
     public function __construct(CommandHandler $handler)
     {
         $this->handler = $handler;
-        $storage = $this->handler->getContainer()->get('sas.common.telegram.bot.storage');
+        $storage = $this->handler->getContainer()->get('ducha.telegram-bot.storage');
         if (!$storage instanceof StorageInterface){
             throw new \LogicException('Class %s must be implement %s', get_class($storage), StorageInterface::class);
         }

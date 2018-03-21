@@ -96,7 +96,7 @@ class CommandHandler
 
         $this->testLogFile = $this->getTestLogFile();
 
-        $this->groupManager = $this->container->get('ducha.telegram.group.manager');
+        $this->groupManager = $this->container->get('ducha.telegram-bot.group.manager');
 
         $this->telegramBot = $telegramBot;
         $this->telegram = $telegramBot->getTelegram();
@@ -199,7 +199,7 @@ class CommandHandler
      */
     public function getPollManager()
     {
-        return $this->container->get('ducha.telegram.poll.manager');
+        return $this->container->get('ducha.telegram-bot.poll.manager');
     }
 
     /**
@@ -207,7 +207,15 @@ class CommandHandler
      */
     public function getPollStatManager()
     {
-        return $this->container->get('ducha.telegram.poll.stat.manager');
+        return $this->container->get('ducha.telegram-bot.poll.stat.manager');
+    }
+
+    /**
+     * @return PollStatManagerInterface
+     */
+    public function getPollSurveyStatManager()
+    {
+        return $this->container->get('ducha.telegram-bot.poll.survey.stat.manager');
     }
 
     /**

@@ -7,6 +7,7 @@ namespace Ducha\TelegramBot\Commands;
 
 use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Poll\PollSurvey;
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Ducha\TelegramBot\Types\Message;
 
 class PollStartCommand extends PollManagerAwareCommand
@@ -41,12 +42,14 @@ class PollStartCommand extends PollManagerAwareCommand
             $message = $this->getMessage($data);
             $poll = $this->getPoll($message->getUserId());
             if ($poll instanceof Poll){
-                $pollSurvey = $this->getPollSurvey($message);
+                $pollSurvey = PollSurvey::getInstance($message->getChatId(), $poll->getId(), $this->telegram, $this->storage, $this->handler);
                 if ($pollSurvey instanceof PollSurvey){
                     $this->telegram->sendMessage($message->getChatId(), 'Poll Survey already goes in this chat. Try once more later.');
                 }else{
-                    $pollSurvey = $this->createPollSurvey($message);
-                    if ($pollSurvey instanceof PollSurvey){
+                    if ($this->hasAnyPollSurveyForChat($message->getChatId())){
+                        $this->telegram->sendMessage($message->getChatId(), 'Other Poll Survey already goes in this chat. Try once more later.');
+                    }else{
+                        $pollSurvey = new PollSurvey($message->getChatId(), $poll, $this->telegram, $this->storage, $this->handler);
                         $pollSurvey->start($message);
                     }
                 }
@@ -56,6 +59,18 @@ class PollStartCommand extends PollManagerAwareCommand
                 );
             }
         }
+    }
+
+    /**
+     * @param int $chatId
+     * @return boolean
+     */
+    protected function hasAnyPollSurveyForChat($chatId)
+    {
+        $pattern = sprintf(StorageKeysHolder::getNotCompletedSurveyPattern(), $chatId, '*');
+        $keys = $this->storage->keys($pattern);
+
+        return !empty($keys);
     }
 
     /**
@@ -120,35 +135,5 @@ class PollStartCommand extends PollManagerAwareCommand
         }
 
         return $this->pollManager->getPoll($userId, $pollName);
-    }
-
-    /**
-     * Get PollSurvey from storage
-     *
-     * @param Message $message
-     * @return PollSurvey|false
-     */
-    protected function getPollSurvey(Message $message)
-    {
-        $chatId = $message->getChatId();
-
-        return PollSurvey::getInstance($chatId, $this->telegram, $this->storage, $this->handler);
-    }
-
-    /**
-     * Create PollSurvey
-     *
-     * @param Message $message
-     * @return PollSurvey|false
-     */
-    protected function createPollSurvey(Message $message)
-    {
-        $poll = $this->getPoll($message->getUserId());
-
-        if ($poll instanceof Poll){
-            return new PollSurvey($message->getChatId(), $poll, $this->telegram, $this->storage, $this->handler);
-        }
-
-        return false;
     }
 }

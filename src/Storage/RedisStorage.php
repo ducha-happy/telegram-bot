@@ -147,8 +147,12 @@ class RedisStorage extends AbstractStorage
      * @param string $pattern example pattern*, *pattern*, *pattern, pattern
      * @return mixed
      */
-    public function keys($pattern)
+    public function keys($pattern = null)
     {
+        if (empty($pattern)){
+            $pattern = StorageKeysHolder::getPrefix().'*';
+        }
+
         return $this->redis->keys($pattern);
     }
 }

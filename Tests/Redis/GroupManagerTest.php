@@ -5,7 +5,10 @@
 
 namespace Ducha\TelegramBot\Tests\Redis;
 
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
+use Ducha\TelegramBot\Tests\TelegramData;
 use Ducha\TelegramBot\Types\Group;
+use Ducha\TelegramBot\Types\Message;
 use Predis\Client as Redis;
 use Ducha\TelegramBot\Storage\RedisStorage;
 use Ducha\TelegramBot\Redis\GroupManager;
@@ -26,38 +29,85 @@ class GroupManagerTest extends TestCase
     {
         $this->storage = new RedisStorage(new Redis());
         $this->groupManager = new GroupManager($this->storage);
+        StorageKeysHolder::setPrefix('telegram-test');
     }
 
     public function tearDown()
     {
+        $this->storage->clear();
         $this->groupManager = null;
         $this->storage = null;
     }
 
     public function testInvalidArgumentException()
     {
+        $chatId = 123456789;
         $this->expectException(\InvalidArgumentException::class);
-        $this->groupManager->addGroup(123456789, 'testGroup');
+        $this->groupManager->addGroup($chatId, 'testGroup');
     }
 
     public function testAddGroup()
     {
-        $this->groupManager->addGroup(-123456789, 'testGroup');
-        $key = $this->storage->getStorageKey(array('group', -123456789));
+        $chatId = -123456789;
+        $this->groupManager->addGroup($chatId, 'testGroup');
+        $key = Group::getStorageKey($chatId);
         $group = $this->storage->get($key);
         $this->assertTrue($group instanceof Group, sprintf('Group must be instanceof %s', Group::class));
     }
 
     public function testGetAndRemoveGroup()
     {
-        $this->groupManager->addGroup(-123456789, 'testGroup');
-        $group = $this->groupManager->getGroup(-123456789);
+        $chatId = -123456789;
+        $this->groupManager->addGroup($chatId, 'testGroup');
+        $group = $this->groupManager->getGroup($chatId);
         $this->assertTrue($group instanceof Group, sprintf('Group must be instanceof %s', Group::class));
 
-        $this->groupManager->removeGroup(-123456789);
+        $this->groupManager->removeGroup($chatId);
 
-        $group = $this->groupManager->getGroup(-123456789);
+        $group = $this->groupManager->getGroup($chatId);
         $this->assertFalse($group instanceof Group, sprintf('Group must not be instanceof %s but must be false', Group::class));
+    }
+
+    public function testLookAtMessage()
+    {
+        // left_chat_participant_data
+        $data = TelegramData::$left_chat_participant_data;
+        $message = new Message($data['message']);
+        $chatId = $message->getChatId();
+
+        $this->groupManager->removeGroup($chatId);
+
+        $group = $this->groupManager->getGroup($chatId);
+        $this->assertTrue(empty($group), 'var group must be empty');
+
+        $this->groupManager->lookAtMessage($message);
+
+        $group = $this->groupManager->getGroup($chatId);
+        $this->assertTrue($group instanceof Group, sprintf('Group must be instanceof %s', Group::class));
+        $this->assertFalse((bool)count($group), 'group must have no one user');
+
+        $this->groupManager->removeGroup($chatId);
+        $group = $this->groupManager->getGroup($chatId);
+        $this->assertTrue(empty($group), 'var group must be empty');
+
+        // new_chat_participant_data
+        $data = TelegramData::$new_chat_participant_data;
+        $message = new Message($data['message']);
+        $chatId = $message->getChatId();
+
+        $group = $this->groupManager->getGroup($chatId);
+        $this->assertTrue(empty($group), 'var group must be empty');
+
+        $this->groupManager->lookAtMessage($message);
+
+        $group = $this->groupManager->getGroup($chatId);
+        $this->assertTrue($group instanceof Group, sprintf('Group must be instanceof %s', Group::class));
+
+        $this->assertTrue((bool)count($group), 'group must have at least one user');
+
+        $this->groupManager->removeGroup($chatId);
+        $group = $this->groupManager->getGroup($chatId);
+        $this->assertTrue(empty($group), 'var group must be empty');
     }
 
 }

@@ -10,26 +10,36 @@ class Telegram
 {
     protected $token;
     protected $baseURL;
+    /**
+     * Any other mode and this telegram api will be silent - this is for test goal
+     * @var string $mode default prod
+     */
     protected $mode = 'prod';
-    // TODO must be removed
-    protected $logDir;
+    /**
+     * Log file for requests
+     * @var string $requestsLogFile
+     */
+    protected $requestsLogFile;
+    /**
+     * Log file for responses
+     * @var string $responsesLogFile
+     */
+    protected $responsesLogFile;
 
     /**
-     * TODO must be removed
-     * @param string $dir
+     * @param mixed $requestsLogFile
      */
-    public function setLogDir($dir)
+    public function setRequestsLogFile($requestsLogFile)
     {
-        $this->logDir = $dir;
+        $this->requestsLogFile = $requestsLogFile;
     }
 
     /**
-     * TODO must be removed
-     * @return string
+     * @param mixed $responsesLogFile
      */
-    public function getLogDir()
+    public function setResponsesLogFile($responsesLogFile)
     {
-        return $this->logDir;
+        $this->responsesLogFile = $responsesLogFile;
     }
 
     /**
@@ -142,10 +152,9 @@ class Telegram
     private function sendRequest($method, $params)
     {
         if ($this->mode == 'prod'){
-
-            // TODO must be removed
-            $file = $this->getLogDir() . '/requests.log';
-            file_put_contents($file, var_export($this->baseURL . $method . '?' . http_build_query($params), true) . "\n\n", FILE_APPEND);
+            if (!empty($this->requestsLogFile)){
+                file_put_contents($this->requestsLogFile, var_export($this->baseURL . $method . '?' . http_build_query($params), true) . "\n\n", FILE_APPEND);
+            }
 
             $content = @file_get_contents($this->baseURL . $method . '?' . http_build_query($params));
 
@@ -153,9 +162,9 @@ class Telegram
                 $content = self::jsonValidate($content, true);
             }
 
-            // TODO must be removed
-            $file = $this->getLogDir() . '/responses.log';
-            file_put_contents($file, var_export($content, true) . "\n\n", FILE_APPEND);
+            if (!empty($this->responsesLogFile)){
+                file_put_contents($this->responsesLogFile, var_export($content, true) . "\n\n", FILE_APPEND);
+            }
 
             return $content;
         }

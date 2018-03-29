@@ -136,4 +136,9 @@ class User
         $this->language_code = $language_code;
     }
 
+    public function toArray()
+    {
+        return get_object_vars($this);
+    }
+
 }

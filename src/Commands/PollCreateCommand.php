@@ -8,6 +8,7 @@
 namespace Ducha\TelegramBot\Commands;
 
 use Ducha\TelegramBot\CommandHandler;
+use Ducha\TelegramBot\Formatter\HtmlFormatter;
 use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Poll\PollQuestion;
 use Ducha\TelegramBot\Redis\PollManager;
@@ -103,7 +104,12 @@ class PollCreateCommand extends AbstractCommand
     {
         $poll['state'] = self::STATE_REPLY;
         $this->savePoll($chatId, $poll);
-        $this->telegram->sendMessage($chatId, 'Введите варианты ответа через запятую на вопрос: ' . $poll['questions'][count($poll['questions'])-1]['title']);
+        $lines = array(
+            HtmlFormatter::bold('Введите варианты ответа через запятую на вопрос:'),
+            $poll['questions'][count($poll['questions'])-1]['title']
+        );
+        $text = implode("\n", $lines);
+        $this->telegram->sendMessage($chatId, $text);
     }
 
     /**
@@ -116,7 +122,7 @@ class PollCreateCommand extends AbstractCommand
      */
     protected function makePause($chatId, $poll, $text = 'Вы хотите задать следующий вопрос', $replies = array('yes' => 'Да', 'no' => 'Нет'))
     {
-        $text = 'Dou you want tot ask next question';
+        $text = 'Do you want to ask next question?';
         $replies = array('yes' => 'YES', 'no' => 'NO');
 
         if (empty($text) || empty($replies)){
@@ -164,11 +170,16 @@ class PollCreateCommand extends AbstractCommand
         // Your poll was added successfully!
         // Now you can poll in any group using the command
 
-        $text = 'Ваш опрос успешно добавлен!' . "\n" .
-            $poll->getContent() . "\n" .
-            sprintf('Теперь вы можете проводить опрос в любой группе с помощью команды %s', PollStartCommand::getName()) . ' ' . $poll->getName() . "\n" .
-            PollStartCommand::getDescription()
-        ;
+        $lines = array(
+            HtmlFormatter::bold('Ваш опрос успешно добавлен!'),
+            $poll->getContent(),
+            sprintf('Теперь вы можете проводить опрос в любой группе с помощью команды "%s %s".', PollStartCommand::getName(), $poll->getId()),
+            '',
+            PollStartCommand::getDescription(),
+            sprintf('You can find all your polls with "%s" command.', StartCommand::getName())
+        );
+
+        $text = implode("\n", $lines);
 
         $this->telegram->sendMessage($chatId, $text);
     }

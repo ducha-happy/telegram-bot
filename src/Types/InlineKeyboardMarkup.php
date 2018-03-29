@@ -11,6 +11,17 @@ class InlineKeyboardMarkup implements \JsonSerializable
 
     public function __construct(array $rows)
     {
+        $this->validate($rows);
+
+        $this->inline_keyboard = $rows;
+    }
+
+    /**
+     * @param $rows
+     * @throws \LogicException
+     */
+    protected function validate($rows)
+    {
         foreach ($rows as $row){
             foreach ($row as $button) {
                 if (!$button instanceof InlineKeyboardButton){
@@ -18,8 +29,6 @@ class InlineKeyboardMarkup implements \JsonSerializable
                 }
             }
         }
-
-        $this->inline_keyboard = $rows;
     }
 
     /**
@@ -31,11 +40,13 @@ class InlineKeyboardMarkup implements \JsonSerializable
     }
 
     /**
-     * @param array $inline_keyboard
+     * @param array $rows
      */
-    public function setInlineKeyboard($inline_keyboard)
+    public function setInlineKeyboard($rows)
     {
-        $this->inline_keyboard = $inline_keyboard;
+        $this->validate($rows);
+
+        $this->inline_keyboard = $rows;
     }
 }
 

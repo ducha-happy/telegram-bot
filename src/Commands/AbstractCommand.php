@@ -45,16 +45,23 @@ abstract class AbstractCommand implements CommandInterface
     /**
      * @return string
      */
+    public function getBotId()
+    {
+        $temp = $this->handler->getContainer()->getParameter('telegram_bot_token');
+        $temp = explode(':', $temp);
+
+        return array_shift($temp);
+    }
+
+    /**
+     * @return string
+     */
     public function getBotName()
     {
-        $name = '';
+        $temp = $this->handler->getContainer()->getParameter('telegram_bot_link');
+        $temp = explode('/', $temp);
 
-        $response = $this->telegram->getMe();
-        if (isset($response['result'])){
-            $name = $response['result']['username'];
-        }
-
-        return $name;
+        return array_pop($temp);
     }
 
     /**

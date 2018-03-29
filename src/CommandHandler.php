@@ -5,7 +5,7 @@ namespace Ducha\TelegramBot;
 use Ducha\TelegramBot\Commands\CommandInterface;
 use Ducha\TelegramBot\Commands\KillBotCommand;
 use Ducha\TelegramBot\Commands\PingCommand;
-use Ducha\TelegramBot\Commands\StartCommand;
+use Ducha\TelegramBot\Commands\RunCommand;
 use Ducha\TelegramBot\Poll\PollManagerInterface;
 use Ducha\TelegramBot\Poll\PollStatManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -19,12 +19,6 @@ class CommandHandler
 
     const WORKING_STATE = 1;
     const SLEEPING_STATE = 2;
-    /**
-     * Flag to find out a need to test
-     *
-     * @const boolean
-     */
-    const TEST_LOG_ON = true;
 
     /**
      * Mode of operation
@@ -69,22 +63,6 @@ class CommandHandler
     protected $groupManager;
 
     /**
-     * @param string $file
-     */
-    public function setTestLogFile($file)
-    {
-        $this->testLogFile = $file;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTestLogFile()
-    {
-        return $this->testLogFile;
-    }
-
-    /**
      * CommandHandler constructor.
      * @param ContainerInterface $container
      * @param TelegramBot $telegramBot
@@ -94,7 +72,10 @@ class CommandHandler
         $this->mode = static::WORKING_STATE;
         $this->container = $container;
 
-        $this->testLogFile = $this->getTestLogFile();
+        $needLog = $this->container->getParameter('telegram_bot_need_command_handler_log');
+        if ($needLog){
+            $this->testLogFile = $this->container->getParameter('telegram_bot_log_dir') . '/CommandHandler.log';
+        }
 
         $this->groupManager = $this->container->get('ducha.telegram-bot.group.manager');
 
@@ -155,8 +136,8 @@ class CommandHandler
      */
     public function process($data)
     {
-        // TODO must be removed
-        if (self::TEST_LOG_ON && !empty($this->testLogFile)){
+        // for test goal
+        if (!empty($this->testLogFile)){
             file_put_contents($this->testLogFile, var_export($data, true) . "\n\n" , FILE_APPEND);
         }
 
@@ -167,12 +148,11 @@ class CommandHandler
 
         $sendOops = true;
         foreach ($this->commands as $key => $command){
-//            echo ( sprintf("stop - %s, %s \n", time(), $command::getName() ) );
             if ($command instanceof CommandInterface && $command->isApplicable($data)) {
                 if ($this->mode == static::WORKING_STATE){
                     $command->execute($data);
                 }else{
-                    if ($command::getName() == StartCommand::getName() || $command::getName() == KillBotCommand::getName()){
+                    if ($command::getName() == RunCommand::getName() || $command::getName() == KillBotCommand::getName()){
                         $command->execute($data);
                     }else{
                         if ($sendOops){

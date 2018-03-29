@@ -79,11 +79,11 @@ class PollStatCommand extends AbstractCommand
         $text = 'Which poll do you want to look at';
         $replies = $this->getKeys();
 
-        $buttons = array();
+        $rows = array();
         foreach ($replies as $key => $value){
-            $buttons[] = array(new InlineKeyboardButton($value, '', $key));
+            $rows[] = array(new InlineKeyboardButton($value, '', $key));
         }
-        $keyboard = new InlineKeyboardMarkup($buttons);
+        $keyboard = new InlineKeyboardMarkup($rows);
         $keyboard = json_encode($keyboard);
         $replyMessageId = $this->getReplyMessageId($chatId);
         if (empty($replyMessageId) || $start){

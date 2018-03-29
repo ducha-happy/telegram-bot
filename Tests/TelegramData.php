@@ -41,4 +41,93 @@ final class TelegramData
                     ),
             ),
     );
+
+    public static $left_chat_participant_data = array (
+        'update_id' => 140331337,
+        'message' =>
+            array (
+                'message_id' => 27,
+                'from' =>
+                    array (
+                        'id' => 99568417,
+                        'is_bot' => false,
+                        'first_name' => 'Malec',
+                        'username' => 'malec88',
+                        'language_code' => 'ru-RU',
+                    ),
+                'chat' =>
+                    array (
+                        'id' => -1001233109538,
+                        'title' => 'рар',
+                        'type' => 'supergroup',
+                    ),
+                'date' => 1522229390,
+                'left_chat_participant' =>
+                    array (
+                        'id' => 99568417,
+                        'is_bot' => false,
+                        'first_name' => 'Malec',
+                        'username' => 'malec88',
+                        'language_code' => 'ru-RU',
+                    ),
+                'left_chat_member' =>
+                    array (
+                        'id' => 99568417,
+                        'is_bot' => false,
+                        'first_name' => 'Malec',
+                        'username' => 'malec88',
+                        'language_code' => 'ru-RU',
+                    ),
+            ),
+    );
+
+    public static $new_chat_participant_data = array (
+        'update_id' => 140331250,
+        'message' =>
+            array (
+                'message_id' => 4,
+                'from' =>
+                    array (
+                        'id' => 123456789,
+                        'is_bot' => false,
+                        'first_name' => 'asdfasf',
+                        'username' => 'asdfasdf',
+                        'language_code' => 'en-US',
+                    ),
+                'chat' =>
+                    array (
+                        'id' => -1001233109538,
+                        'title' => 'рар',
+                        'type' => 'supergroup',
+                    ),
+                'date' => 1522147101,
+                'new_chat_participant' =>
+                    array (
+                        'id' => 99568417,
+                        'is_bot' => false,
+                        'first_name' => 'Malec',
+                        'username' => 'malec88',
+                        'language_code' => 'ru-RU',
+                    ),
+                'new_chat_member' =>
+                    array (
+                        'id' => 99568417,
+                        'is_bot' => false,
+                        'first_name' => 'Malec',
+                        'username' => 'malec88',
+                        'language_code' => 'ru-RU',
+                    ),
+                'new_chat_members' =>
+                    array (
+                        0 =>
+                            array (
+                                'id' => 99568417,
+                                'is_bot' => false,
+                                'first_name' => 'Malec',
+                                'username' => 'malec88',
+                                'language_code' => 'ru-RU',
+                            ),
+                    ),
+            ),
+    );
 }

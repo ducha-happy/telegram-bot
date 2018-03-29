@@ -2,6 +2,30 @@
 
 namespace Ducha\TelegramBot\Storage;
 
+/**
+ * Class - Storage Keys Holder
+ *
+ * @method static getCompletedSurveyPattern
+ * @method static getCompletedSurveyKey($chatId, $pollId)
+ * @method static getNotCompletedSurveyPattern
+ * @method static getNotCompletedSurveyKey($chatId, $pollId)
+ * @method static getPollPattern
+ * @method static getPollKey($pollId)
+ * @method static getPollCreatePattern
+ * @method static getPollCreateKey($chatId)
+ * @method static getGroupPattern
+ * @method static getGroupKey($groupId)
+ * @method static getPollMaxIdPattern
+ * @method static getPollMaxIdKey
+ * @method static getUserPollsPattern
+ * @method static getUserPollsKey($userId)
+ * @method static getSurveyReplyMessageIdPattern
+ * @method static getSurveyReplyMessageIdKey($chatId)
+ * @method static getCompletedSurveyReplyMessageIdPattern
+ * @method static getCompletedSurveyReplyMessageIdKey
+ * @method static getMenuReplyMessageIdPattern
+ * @method static getMenuReplyMessageIdKey($chatId)
+ */
 class StorageKeysHolder
 {
     private static $prefix                                    = 'telegram';
@@ -14,6 +38,7 @@ class StorageKeysHolder
     private static $userPollsPattern                          = 'polls.%s';
     private static $surveyReplyMessageIdPattern               = 'poll.survey.ReplyMessageId.%s';
     private static $completedSurveyReplyMessageIdPattern      = 'poll.completed.ReplyMessageId.%s';
+    private static $menuReplyMessageIdPattern                 = 'menu.ReplyMessageId.%s';
 
     public static function getPrefix()
     {
@@ -25,91 +50,50 @@ class StorageKeysHolder
         self::$prefix = $prefix;
     }
 
-    public static function getPollCreatePattern()
+    /**
+     * @param string $method
+     * @param mixed $args
+     * @return string|null
+     */
+    public static function __callStatic($method, $args)
     {
-        return implode('.', array(self::$prefix, self::$pollCreatePattern));
+        $vars = get_class_vars(StorageKeysHolder::class);
+        $methods = array();
+        foreach ($vars as $key => $value){
+            if (preg_match('|Pattern$|', $key)){
+                $methods['get' . ucfirst($key)] = function() use ($key) {
+                    return implode('.', array(self::$prefix, self::$$key));
+                };
+                $methods['get' . ucfirst(str_replace('Pattern', 'Key', $key))] = function() use ($args, $key) {
+                    $pattern = call_user_func(array(StorageKeysHolder::class, 'get' . ucfirst($key)));
+                    return self::sprintf_array($pattern, $args);
+                };
+            }
+        }
+
+        if (isset($methods[$method])){
+            return call_user_func_array($methods[$method], $args);
+        }
     }
 
-    public static function getPollCreateKey($userId)
-    {
-        return sprintf(self::getPollCreatePattern(), $userId);
+    /**
+     * @param string $str
+     * @param array $args
+     * @return string
+     */
+    public static function sprintf_array($str, $args){
+        $temp = explode('.', $str);
+        $placeHolderCount = count(array_keys($temp, '%s'));
+        if ($placeHolderCount != count($args)){
+            throw new \InvalidArgumentException(
+                sprintf('Number of items in the second argument don`t corresponds to number of place holders in the first one. %s must be but there is %s ', $placeHolderCount, count($args))
+            );
+        }
+        foreach ($temp as $key => $value){
+            if ($value == '%s'){
+                $temp[$key] = array_shift($args);
+            }
+        }
+        return implode('.', $temp);
     }
-
-    public static function getCompletedSurveyPattern()
-    {
-        return implode('.', array(self::$prefix, self::$completedSurveyPattern));
-    }
-
-    public static function getCompletedSurveyKey($chatId, $pollId)
-    {
-        return sprintf(self::getCompletedSurveyPattern(), $chatId, $pollId);
-    }
-
-    public static function getNotCompletedSurveyPattern()
-    {
-        return implode('.', array(self::$prefix, self::$notCompletedSurveyPattern));
-    }
-
-    public static function getNotCompletedSurveyKey($chatId, $pollId)
-    {
-        return sprintf(self::getNotCompletedSurveyPattern(), $chatId, $pollId);
-    }
-
-    public static function getPollPattern()
-    {
-        return implode('.', array(self::$prefix, self::$pollPattern));
-    }
-
-    public static function getPollKey($id)
-    {
-        return sprintf(self::getPollPattern(), $id);
-    }
-
-    public static function getGroupPattern()
-    {
-        return implode('.', array(self::$prefix, self::$groupPattern));
-    }
-
-    public static function getGroupKey($id)
-    {
-        return sprintf(self::getGroupPattern(), $id);
-    }
-
-    public static function getPollMaxIdPattern()
-    {
-        return implode('.', array(self::$prefix, self::$pollMaxIdPattern));
-    }
-
-    public static function getUserPollsPattern()
-    {
-        return implode('.', array(self::$prefix, self::$userPollsPattern));
-    }
-
-    public static function getSurveyReplyMessageIdPattern()
-    {
-        return implode('.', array(self::$prefix, self::$surveyReplyMessageIdPattern));
-    }
-
-    public static function getCompletedSurveyReplyMessageIdPattern()
-    {
-        return implode('.', array(self::$prefix, self::$completedSurveyReplyMessageIdPattern));
-    }
-
-    public static function getCompletedSurveyReplyMessageIdKey($userId)
-    {
-        return sprintf(self::getCompletedSurveyReplyMessageIdPattern(), $userId);
-    }
-
-    public static function getUserPollsKey($userId)
-    {
-        return sprintf(self::getUserPollsPattern(), $userId);
-    }
-
-    public static function getSurveyReplyMessageIdKey($userId)
-    {
-        return sprintf(self::getSurveyReplyMessageIdPattern(), $userId);
-    }
-
-
-
 }

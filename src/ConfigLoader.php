@@ -50,7 +50,15 @@ class ConfigLoader
             throw new \LogicException(sprintf('Config file "%s" does not exists', $file));
         }
 
-        $parameters = $config['parameters'];
+        // default parameters
+        $parameters = array(
+            'telegram_bot_need_command_handler_log' => false,
+            'telegram_bot_need_requests_log'        => false,
+            'telegram_bot_need_responses_log'       => false,
+        );
+
+        $parameters = array_merge($parameters, $config['parameters']);
+
         foreach ($parameters as $parameter => $value){
             $containerBuilder->setParameter($parameter, $value);
         }

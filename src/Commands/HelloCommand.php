@@ -124,12 +124,11 @@ class HelloCommand extends AbstractCommand
     {
         $chat_id = $chat['id'];
         $doctrine = $this->handler->getDoctrine();
-        $telegramBot = $this->handler->getTelegramBot();
 
         $em = $doctrine->getManager();
         $repo = $doctrine->getRepository('SasCommonBundle:User');
 
-        $logDir = $telegramBot->getLogDir();
+        $logDir = $this->handler->getContainer()->getParameter('telegram_bot_log_dir');
         $tokenFile = $logDir . $token;
 
         // пользователь привязывает Telegram аккаунт к своему аккаунту на сайте

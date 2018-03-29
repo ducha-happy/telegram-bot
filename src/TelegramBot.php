@@ -13,6 +13,12 @@ class TelegramBot implements ContainerAwareInterface
     const STOP_MESSAGE = " — ending server... ";
 
     /**
+     * Info about bot - result of botApi getMe method
+     * @var array
+     */
+    protected static $info;
+
+    /**
      * Logger
      * @var Logger
      */
@@ -73,15 +79,31 @@ class TelegramBot implements ContainerAwareInterface
         $this->container = $container;
     }
 
+    /**
+     * Setting telegram Api
+     */
     public function setTelegram()
     {
         $this->telegramAdminChatId = $this->getContainer()->getParameter('telegram_admin_chat_id');
         $this->telegramBotToken = $this->getContainer()->getParameter('telegram_bot_token');
         $this->telegram = new Telegram($this->telegramBotToken);
-        $this->telegram->setLogDir($this->getLogDir());
+
+        $needResponsesLog = $this->getContainer()->getParameter('telegram_bot_need_responses_log');
+        $needRequestsLog = $this->getContainer()->getParameter('telegram_bot_need_requests_log');
+        if ($needResponsesLog){
+            $this->telegram->setResponsesLogFile($this->getLogDir() . '/responses.log');
+        }
+        if ($needRequestsLog){
+            $this->telegram->setRequestsLogFile($this->getLogDir() . '/requests.log');
+        }
+
+        $temp = $this->telegram->getMe();
+        if (is_array($temp) && isset($temp['result'])){
+            static::$info = $temp['result'];
+        }
     }
 
-    public function getLogDir()
+    protected function getLogDir()
     {
         return $this->getContainer()->getParameter('telegram_bot_log_dir');
     }
@@ -89,7 +111,6 @@ class TelegramBot implements ContainerAwareInterface
     public function execute()
     {
         $container = $this->getContainer();
-
         $logDir = $this->getLogDir();
 
         $fileOfLastUpdate = $logDir . '/LastUpdateId.log';
@@ -105,7 +126,6 @@ class TelegramBot implements ContainerAwareInterface
         if ($fl) {
             $this->setTelegram();
             $commandHandler = new CommandHandler($container, $this);
-            $commandHandler->setTestLogFile($this->getLogDir() . '/CommandHandler.log');
             $this->telegram->sendMessage($this->telegramAdminChatId, date("d.m.Y H:i:s") . self::START_MESSAGE);
             $loopIndex = 0;
             while(true){
@@ -118,8 +138,6 @@ class TelegramBot implements ContainerAwareInterface
                     foreach($updates['result'] as $data){
                         $commandHandler->process($data);
                     }
-                }else{
-                    // $this->kill();
                 }
                 $loopIndex++;
             }
@@ -161,4 +179,13 @@ class TelegramBot implements ContainerAwareInterface
     {
         return $this->telegramAdminChatId;
     }
+
+    /**
+     * @return mixed|string
+     */
+    public static function getId()
+    {
+        return empty(static::$info)? '' : static::$info['id'];
+    }
+
 }

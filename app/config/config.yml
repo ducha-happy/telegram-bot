@@ -4,3 +4,7 @@ parameters:
     telegram_admin_chat_id  : "YourAdminChatId"
     telegram_bot_log_dir    : "%root_dir%/app/logs"
     telegram_bot_log_file_name   : "telegram-bot.log"
+
+    telegram_bot_need_command_handler_log : true
+    telegram_bot_need_requests_log :  false
+    telegram_bot_need_responses_log : false

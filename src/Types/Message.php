@@ -92,4 +92,52 @@ class Message
 
         return $from['id'];
     }
+
+    /**
+     * @return User|null
+     */
+    public function getNewChatParticipant()
+    {
+        if (isset($this->data['new_chat_participant'])){
+            $temp = $this->data['new_chat_participant'];
+
+            return $this->getUser($temp);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getLeftChatParticipant()
+    {
+        if (isset($this->data['left_chat_participant'])){
+            $temp = $this->data['left_chat_participant'];
+
+            return $this->getUser($temp);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array $temp
+     * @return User
+     */
+    protected function getUser($temp)
+    {
+        $user = new User($temp['id'], $temp['is_bot'], $temp['first_name']);
+        if (isset($temp['last_name'])){
+            $user->setLastName($temp['last_name']);
+        }
+        if (isset($temp['username'])){
+            $user->setUsername($temp['username']);
+        }
+        if (isset($temp['language_code'])){
+            $user->setLanguageCode($temp['language_code']);
+        }
+
+        return $user;
+    }
 }

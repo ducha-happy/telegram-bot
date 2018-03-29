@@ -8,6 +8,7 @@ namespace Ducha\TelegramBot\Tests\Redis;
 
 use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Redis\PollManager;
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Predis\Client as Redis;
 use Ducha\TelegramBot\Storage\RedisStorage;
 use PHPUnit\Framework\TestCase;
@@ -18,16 +19,22 @@ class PollManagerTest extends TestCase
      * @var PollManager
      */
     private $pollManager;
+    /**
+     * @var RedisStorage
+     */
+    private $storage;
 
     public function setUp()
     {
-        $storage = new RedisStorage(new Redis());
-        $this->pollManager = new PollManager($storage);
+        $this->storage = new RedisStorage(new Redis());
+        $this->pollManager = new PollManager($this->storage);
+        StorageKeysHolder::setPrefix('telegram-test');
     }
 
     public function tearDown()
     {
         $this->pollManager = null;
+        $this->storage->clear();
     }
 
     public function testCRUD()

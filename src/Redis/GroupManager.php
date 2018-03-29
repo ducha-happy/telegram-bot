@@ -6,6 +6,7 @@ use Ducha\TelegramBot\GroupManagerInterface;
 use Ducha\TelegramBot\Types\Group;
 use Ducha\TelegramBot\Storage\RedisStorage;
 use Ducha\TelegramBot\Types\Message;
+use Ducha\TelegramBot\Types\User;
 
 /**
  * Control chats of a group type where users are writing their messages.
@@ -79,8 +80,37 @@ class GroupManager implements GroupManagerInterface
         }
 
         if ($group != false){
+            $groupChange = false;
             if (!isset($group[$userId])){
                 $group[$userId] = $user;
+                $groupChange = true;
+            }
+
+            // add new participant to a group
+            $participant = $message->getNewChatParticipant();
+            if ($participant instanceof User){
+                if ($participant->isIsBot() == false){
+                    $participantId = $participant->getId();
+                    if (!isset($group[$participantId])){
+                        $group[$participantId] = $participant->toArray();
+                        $groupChange = true;
+                    }
+                }
+            }
+
+            // remove participant from the group
+            $participant = $message->getLeftChatParticipant();
+            if ($participant instanceof User){
+                if ($participant->isIsBot() == false){
+                    $participantId = $participant->getId();
+                    if (isset($group[$participantId])){
+                        unset($group[$participantId]);
+                        $groupChange = true;
+                    }
+                }
+            }
+
+            if ($groupChange){
                 $key = Group::getStorageKey($chat['id']);
                 $this->storage->set($key, $group);
             }

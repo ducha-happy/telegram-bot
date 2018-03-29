@@ -5,7 +5,6 @@
 
 namespace Ducha\TelegramBot\Tests\Commands;
 
-use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use PHPUnit\Framework\TestCase;
 use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Commands\PollSurveyListCommand;
@@ -40,32 +39,6 @@ class PollSurveyListCommandTest extends TestCase
     {
         $this->handler = null;
         $this->command = null;
-    }
-
-    public function testExecute()
-    {
-        $storage = $this->command->getStorage();
-
-        //$keys = $storage->keys(StorageKeysHolder::getNotCompletedSurveyKey('*', '*'));
-        //$keys = $storage->keys(StorageKeysHolder::getPrefix().'*');
-
-        //var_dump($keys);
-
-
-//        $pollId = 123456;
-//        $chatId = -123456;
-//        $temp2 = array('poll_show_stat', $chatId, $pollId);
-//        $temp1 = array('poll_show_stat', '{chatId}', '{pollId}', 'uncompleted');
-//
-//        $temp3 = array_replace($temp1, $temp2);
-//        $temp4 = array('poll_show_stat', $chatId, $pollId, 'uncompleted');
-//
-//        $this->assertEquals($temp4, $temp3, 'Something is wrong.');
-//
-//        var_dump($temp3);
-
-
-
     }
 
     public function testIsApplicable()

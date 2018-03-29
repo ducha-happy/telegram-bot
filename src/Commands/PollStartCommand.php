@@ -5,14 +5,28 @@
  */
 namespace Ducha\TelegramBot\Commands;
 
+use Ducha\TelegramBot\CommandHandler;
 use Ducha\TelegramBot\Poll\Poll;
+use Ducha\TelegramBot\Poll\PollManagerInterface;
 use Ducha\TelegramBot\Poll\PollSurvey;
 use Ducha\TelegramBot\Storage\StorageKeysHolder;
-use Ducha\TelegramBot\Types\Message;
 
-class PollStartCommand extends PollManagerAwareCommand
+class PollStartCommand extends AbstractCommand
 {
     use ArgumentsAwareTrait;
+
+    /**
+     * polls keeper
+     * @var PollManagerInterface
+     */
+    protected $pollManager;
+
+    public function __construct(CommandHandler $handler)
+    {
+        parent::__construct($handler);
+
+        $this->pollManager = $this->handler->getContainer()->get('ducha.telegram-bot.poll.manager');
+    }
 
     /**
      * Get name of command

@@ -55,7 +55,10 @@ class PollCreateCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return sprintf('Create poll. The command is available only for private chats. ' . "\n" . 'Formats: 1) %s name ; 2) %s  ', self::getName(), self::getName());
+        return static::getTranslator()->trans('poll_create_command_description', array(
+            '%format1%' => self::getName(),
+            '%format2%' => sprintf('%s name', self::getName()),
+        ));
     }
 
     /**
@@ -120,13 +123,14 @@ class PollCreateCommand extends AbstractCommand
      * @param string $text
      * @param array $replies
      */
-    protected function makePause($chatId, $poll, $text = 'Вы хотите задать следующий вопрос', $replies = array('yes' => 'Да', 'no' => 'Нет'))
+    protected function makePause($chatId, $poll, $text = null, $replies = array())
     {
-        $text = 'Do you want to ask next question?';
-        $replies = array('yes' => 'YES', 'no' => 'NO');
-
-        if (empty($text) || empty($replies)){
-            throw new \InvalidArgumentException('Bad argument: the text and replies must not be empty!');
+        if (empty($text)){
+            $text = $this->translator->trans('ask_next_question');
+            $replies = array(
+                'yes' => $this->translator->trans('yes'),
+                'no' => $this->translator->trans('no')
+            );
         }
 
         $poll['state'] = self::STATE_PAUSE;
@@ -153,7 +157,7 @@ class PollCreateCommand extends AbstractCommand
         $questions = array();
 
         if (count($poll['questions']) == 0){
-            throw new \LogicException('Your poll must have one question at least but nothing was given');
+            throw new \LogicException('A poll must have one question at least but nothing was given');
         }
 
         foreach ($poll['questions'] as $item){
@@ -171,12 +175,12 @@ class PollCreateCommand extends AbstractCommand
         // Now you can poll in any group using the command
 
         $lines = array(
-            HtmlFormatter::bold('Ваш опрос успешно добавлен!'),
+            HtmlFormatter::bold( $this->translator->trans('poll_created_successfully') ),
             $poll->getContent(),
-            sprintf('Теперь вы можете проводить опрос в любой группе с помощью команды "%s %s".', PollStartCommand::getName(), $poll->getId()),
+            $this->translator->trans('now_you_can_lead_poll', array('%command%' => PollStartCommand::getName().' '.$poll->getId())),
             '',
             PollStartCommand::getDescription(),
-            sprintf('You can find all your polls with "%s" command.', StartCommand::getName())
+            $this->translator->trans('you_can_find_all_your_polls', array('%command%' => StartCommand::getName()))
         );
 
         $text = implode("\n", $lines);
@@ -195,7 +199,7 @@ class PollCreateCommand extends AbstractCommand
     {
         $temp = $this->pollManager->getPoll($userId, $pollName);
         if ($temp instanceof Poll){
-            $this->telegram->sendMessage($chatId, 'A poll with a such name already exists. Try other name.');
+            $this->telegram->sendMessage($chatId, $this->translator->trans('poll_already_exists'));
             return false;
         }
 

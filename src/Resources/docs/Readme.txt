@@ -44,7 +44,7 @@ Commands
 
 4) Below is a stuff for BotFather
 
-start - Start menu for a user to manage their polls. This command is available only for private chat.
-pollcreate - Create poll. The command is available only for private chats. Formats: 1) /pollcreate name ; 2) /pollcreate
-pollstart - Start poll. The command is available only in group chat. Formats: 1) /pollstart number ; 2) /pollstart string ; 3) /pollstart
-ping - Send pong message. This command is only for test.
+pollcreate - This command creates poll. The command is available only for private chats. Formats: 1) /pollcreate name ; 2) /pollcreate
+pollstart - This command starts poll. The command is available only in group chat. Formats: 1) /pollstart number ; 2) /pollstart string ; 3) /pollstart
+ping - This command sends pong message. This command is only for test.
+start - This command starts an interactive menu so that a user can manage their polls. It is available only for private chat.

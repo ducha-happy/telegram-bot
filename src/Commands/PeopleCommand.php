@@ -35,7 +35,7 @@ class PeopleCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'Show how many people in a chat. This command is only for information and is applicable in group.';
+        return static::getTranslator()->trans('people_command_description');
     }
 
     /**
@@ -47,10 +47,10 @@ class PeopleCommand extends AbstractCommand
             $message = $this->getMessage($data);
             $chatId = $message->getChatId();
             $group = $this->groupManager->getGroup($chatId);
-            $text = 'Sorry. I have no information about people.';
+            $text = $this->translator->trans('people_command_no_info');
             if ($group instanceof Group){
                 $count = count($group);
-                $text = join(" ",[$count, 'humans', 'in the chat']);
+                $text = $this->translator->trans('people_command_count_humans', array('%count%' => $count));
             }
 
             $this->telegram->sendMessage($message->getChatId(), $text);

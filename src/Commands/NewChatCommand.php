@@ -22,7 +22,7 @@ class NewChatCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'This command processes adding of new chat participant';
+        return static::getTranslator()->trans('new_chat_command_description');
     }
 
     /**
@@ -45,16 +45,17 @@ class NewChatCommand extends AbstractCommand
 
         $user = $message->getNewChatParticipant();
 
-
         if ($user instanceof User){
             $botId = $this->getBotId();
             // this bot was added to chat - send `hello message` to chat members
             if ($user->isIsBot() && $botId == $user->getId()){
                 $lines = array(
                     HtmlFormatter::bold('Hello!'),
-                    'With my help you can create polls and conduct them in your groups!',
-                    sprintf('So you can create a poll with "%s" and start that poll in any group where i live with "%s name" or "%s number".', PollCreateCommand::getName(), PollStartCommand::getName(), PollStartCommand::getName()),
-                    sprintf('You can find all your polls and statistic for them with help of the command "%s".', StartCommand::getName())
+                    $this->translator->trans('telegram_bot_description', array(
+                        '%poll_create_command_name%' => PollCreateCommand::getName(),
+                        '%poll_start_command_name%' => PollStartCommand::getName(),
+                        '%start_command_name%' => StartCommand::getName(),
+                    )),
                 );
                 $text = implode("\n", $lines);
                 $chatId = $message->getChatId();

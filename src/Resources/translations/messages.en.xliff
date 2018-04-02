@@ -1,0 +1,285 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="" >
+        <body>
+            <trans-unit id="telegram_bot_description">
+                <source>telegram_bot_description</source>
+                <target>
+                    With my help you can create polls and conduct them in your groups!
+                    So you can create a poll with "%poll_create_command_name%" and start that poll in any group where i live with "%poll_start_command_name% name" or "%poll_start_command_name% number".
+                    You can find all your polls and statistic for them with help of the command "%start_command_name%".
+                </target>
+            </trans-unit>
+
+            <trans-unit id="kill_bot_command_description">
+                <source>kill_bot_command_description</source>
+                <target>
+                    This command kills the bot so that it can start only from server.
+                    The bot will be killed only if the command came from the administrator.
+                </target>
+            </trans-unit>
+
+            <trans-unit id="list_command_description">
+                <source>list_command_description</source>
+                <target>This command shows list of available commands</target>
+            </trans-unit>
+
+            <trans-unit id="new_chat_command_description">
+                <source>new_chat_command_description</source>
+                <target>This command processes adding of new chat participant</target>
+            </trans-unit>
+
+            <trans-unit id="people_command_description">
+                <source>people_command_description</source>
+                <target>This command shows how many people in a chat. Accordingly, it is for information and applicable only in groups.</target>
+            </trans-unit>
+
+            <trans-unit id="people_command_no_info">
+                <source>people_command_no_info</source>
+                <target>Sorry. I have no information about people.</target>
+            </trans-unit>
+
+            <trans-unit id="people_command_count_humans">
+                <source>people_command_count_humans</source>
+                <target>%count% humans in the chat</target>
+            </trans-unit>
+
+            <trans-unit id="ping_command_description">
+                <source>ping_command_description</source>
+                <target>Send pong message. This command is only for test.</target>
+            </trans-unit>
+
+            <trans-unit id="poll_command_description">
+                <source>poll_command_description</source>
+                <target>This command leads the process of a poll.</target>
+            </trans-unit>
+
+            <trans-unit id="poll_survey_finished">
+                <source>poll_survey_finished</source>
+                <target>This poll is finished! Thank you for your replies!</target>
+            </trans-unit>
+
+            <trans-unit id="yes">
+                <source>yes</source>
+                <target>Yes</target>
+            </trans-unit>
+
+            <trans-unit id="no">
+                <source>no</source>
+                <target>No</target>
+            </trans-unit>
+
+            <trans-unit id="ask_next_question">
+                <source>ask_next_question</source>
+                <target>Do you want to ask next question?</target>
+            </trans-unit>
+
+            <trans-unit id="poll_created_successfully">
+                <source>poll_created_successfully</source>
+                <target>Your poll was created successfully!</target>
+            </trans-unit>
+
+            <trans-unit id="now_you_can_lead_poll">
+                <source>now_you_can_lead_poll</source>
+                <target>Now you can conduct a poll in any group with "%command%"!</target>
+            </trans-unit>
+
+            <trans-unit id="you_can_find_all_your_polls">
+                <source>you_can_find_all_your_polls</source>
+                <target>You can find all your polls with "%command%"!</target>
+            </trans-unit>
+
+            <trans-unit id="poll_already_exists">
+                <source>poll_already_exists</source>
+                <target>A poll with a such name already exists. Try other name.</target>
+            </trans-unit>
+
+            <trans-unit id="poll_start_command_description">
+                <source>poll_start_command_description</source>
+                <target>
+                    This command starts poll. The command is available only in group chat.
+                    Formats: 1) %format1%; 2) %format2%; 3) %format3%.
+                </target>
+            </trans-unit>
+
+            <trans-unit id="poll_survey_already_conducting">
+                <source>poll_survey_already_conducting</source>
+                <target>This poll already is conducting in this chat.</target>
+            </trans-unit>
+
+            <trans-unit id="other_poll_survey_already_conducting">
+                <source>other_poll_survey_already_conducting</source>
+                <target>Other poll already is conducting in this chat. Try once more later.</target>
+            </trans-unit>
+            
+            <trans-unit id="can_not_find_any_poll">
+                <source>can_not_find_any_poll</source>
+                <target>Can not find any poll. You need to create a poll, the one at least.</target>
+            </trans-unit>
+
+            <trans-unit id="go_to_and_try_there">
+                <source>go_to_and_try_there</source>
+                <target>Go to %bot_name% and try %command% there</target>
+            </trans-unit>
+
+            <trans-unit id="run_command_description">
+                <source>run_command_description</source>
+                <target>This command starts bot. The bot will be start only if the command came from the administrator.</target>
+            </trans-unit>
+            
+            <trans-unit id="can_not_find_the_poll">
+                <source>can_not_find_the_poll</source>
+                <target>Sorry. Can not find the poll with number %number%</target>
+            </trans-unit>
+            
+            <trans-unit id="you_can_start_the_poll">
+                <source>you_can_start_the_poll</source>
+                <target>You can start this poll in any group where i live with %command%</target>
+            </trans-unit>
+            
+            <trans-unit id="can_not_find_the_statistic">
+                <source>can_not_find_the_statistic</source>
+                <target>Sorry. Can not find the statistic for the poll with number %number%</target>
+            </trans-unit>
+
+            <trans-unit id="can_not_remove_the_poll">
+                <source>can_not_remove_the_poll</source>
+                <target>Sorry. Can not remove the poll with number %number%</target>
+            </trans-unit>
+
+            <trans-unit id="poll_was_removed">
+                <source>poll_was_removed</source>
+                <target>Ok. Your poll with number %number% was removed!</target>
+            </trans-unit>
+
+            <trans-unit id="can_not_remove_the_poll_in_time_of_conducting">
+                <source>can_not_remove_the_poll_in_time_of_conducting</source>
+                <target>Sorry. Can not remove the poll with number %number% in time of conducting - remove the statistic of that poll first</target>
+            </trans-unit>
+
+            <trans-unit id="to_create_poll">
+                <source>to_create_poll</source>
+                <target>To create a poll use this command %command%</target>
+            </trans-unit>
+
+            <trans-unit id="conducting_of_poll_was_canceled">
+                <source>conducting_of_poll_was_canceled</source>
+                <target>I am very sorry, but this conducting of poll ("%poll_id% - %poll_name%") was canceled by poll creator.</target>
+            </trans-unit>
+
+            <trans-unit id="statistic_was_removed">
+                <source>statistic_was_removed</source>
+                <target>The statistic for ("%group_title% - %poll_name%") was removed.</target>
+            </trans-unit>
+
+            <trans-unit id="select_statistic_for_poll">
+                <source>select_statistic_for_poll</source>
+                <target>Select the statistic for your poll (%poll_id% - %poll_name%).</target>
+            </trans-unit>
+
+            <trans-unit id="you_have_not_any_polls">
+                <source>you_have_not_any_polls</source>
+                <target>You have not any polls yet. To create a poll, You can use "%command%" command.</target>
+            </trans-unit>
+
+            <trans-unit id="select_menu_point">
+                <source>select_menu_point</source>
+                <target>Select a menu point - what do you want me to do for you!</target>
+            </trans-unit>
+
+            <trans-unit id="main_menu_caption">
+                <source>main_menu_caption</source>
+                <target>Main Menu</target>
+            </trans-unit>
+
+            <trans-unit id="all_polls_menu_caption">
+                <source>all_polls_menu_caption</source>
+                <target>All Polls</target>
+            </trans-unit>
+
+            <trans-unit id="poll_show_stat_menu_caption">
+                <source>poll_show_stat_menu_caption</source>
+                <target>Poll Show Stat Menu</target>
+            </trans-unit>
+
+            <trans-unit id="poll_create_action_caption">
+                <source>poll_create_action_caption</source>
+                <target>Poll Create</target>
+            </trans-unit>
+
+            <trans-unit id="poll_remove_action_caption">
+                <source>poll_remove_action_caption</source>
+                <target>Poll Remove</target>
+            </trans-unit>
+
+            <trans-unit id="poll_show_action_caption">
+                <source>poll_show_action_caption</source>
+                <target>Poll Show</target>
+            </trans-unit>
+
+            <trans-unit id="poll_show_stat_action_caption">
+                <source>poll_show_stat_action_caption</source>
+                <target>Statistic</target>
+            </trans-unit>
+
+            <trans-unit id="poll_show_stat_action_uncompleted_caption">
+                <source>poll_show_stat_action_uncompleted_caption</source>
+                <target>Uncompleted Statistic</target>
+            </trans-unit>
+
+            <trans-unit id="poll_stat_remove_action_caption">
+                <source>poll_stat_remove_action_caption</source>
+                <target>Statistic Remove</target>
+            </trans-unit>
+
+            <trans-unit id="stop_command_description">
+                <source>stop_command_description</source>
+                <target>This command stops bot. The bot will be stopped only if the command came from the administrator.</target>
+            </trans-unit>
+
+            <trans-unit id="poll_create_command_description">
+                <source>poll_create_command_description</source>
+                <target>
+                    This command creates poll. It is available only for private chats.
+                    Formats: 1) %format1%; 2) %format2%.
+                </target>
+            </trans-unit>
+
+            <trans-unit id="start_command_description">
+                <source>start_command_description</source>
+                <target>This command starts an interactive menu so that a user can manage their polls. It is available only for private chat.</target>
+            </trans-unit>
+
+            <trans-unit id="select_poll_and_action">
+                <source>select_poll_and_action</source>
+                <target>Select your poll and action what you want.</target>
+            </trans-unit>
+
+            <trans-unit id="response">
+                <source>response</source>
+                <target>Response</target>
+            </trans-unit>
+
+            <trans-unit id="responses">
+                <source>responses</source>
+                <target>Responses</target>
+            </trans-unit>
+
+            <trans-unit id="question">
+                <source>question</source>
+                <target>Question</target>
+            </trans-unit>
+
+            <trans-unit id="total_voted">
+                <source>total_voted</source>
+                <target>Voted out</target>
+            </trans-unit>
+
+            <trans-unit id="total_voting">
+                <source>total_voting</source>
+                <target>Total of voting</target>
+            </trans-unit>
+
+        </body>
+    </file>
+</xliff>

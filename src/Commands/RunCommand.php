@@ -21,7 +21,7 @@ class RunCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'The bot will be start only if the command came from the administrator.';
+        return static::getTranslator()->trans('run_command_description');
     }
 
     /**

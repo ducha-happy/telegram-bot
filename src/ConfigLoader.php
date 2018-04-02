@@ -6,6 +6,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Translation\Loader\XliffFileLoader;
+use Symfony\Component\Translation\Translator;
 use Symfony\Component\Yaml\Yaml;
 
 class ConfigLoader
@@ -38,6 +41,17 @@ class ConfigLoader
      */
     private function setContainer()
     {
+        $locales = array(
+            'ru' => array(
+                'locale' => 'ru_RU',
+                'country_code' => 'RU',
+            ),
+            'en' => array(
+                'locale' => 'en_US',
+                'country_code' => 'US',
+            ),
+        );
+
         $containerBuilder = new ContainerBuilder();
 
         $file = __DIR__ . '/../app/config/config.yml';
@@ -55,12 +69,21 @@ class ConfigLoader
             'telegram_bot_need_command_handler_log' => false,
             'telegram_bot_need_requests_log'        => false,
             'telegram_bot_need_responses_log'       => false,
+            'locale'                                => 'en-Us', // ru-Ru
         );
 
         $parameters = array_merge($parameters, $config['parameters']);
 
         foreach ($parameters as $parameter => $value){
             $containerBuilder->setParameter($parameter, $value);
+        }
+
+        // check locale and set it correctly with country code
+        $locale = $containerBuilder->getParameter('locale');
+        if (preg_match('/^[a-z]{2}$/', $locale)){
+            if (isset($locales[$locale])){
+                $containerBuilder->setParameter('locale', $locales[$locale]['locale']);
+            }
         }
 
         $file = __DIR__ . '/../app/config/services.yml';
@@ -80,6 +103,26 @@ class ConfigLoader
         }
 
         $this->container = $containerBuilder;
+
+        // setting translator
+        $translator = $this->container->get('ducha.telegram-bot.translator');
+        $translator->addLoader('xliff', new XliffFileLoader());
+        $pattern = '/^messages\.(ru|en)\.xliff$/';
+        $dir = implode(DIRECTORY_SEPARATOR, array(__DIR__, 'Resources', 'translations'));
+        foreach (Finder::create()->files()->in($dir) as $file){
+            if ($file instanceof \SplFileInfo){
+                $fileName = $file->getFilename();
+                if (preg_match($pattern, $fileName, $matches)){
+                    if (isset($locales[$matches[1]])){
+                        $translator->addResource('xliff', $file->getPathname(),
+                            implode('_', array($matches[1], $locales[$matches[1]]['country_code']))
+                        );
+                    }
+                }
+            }
+        }
+
+        $translator->setFallbackLocales(array('en_US', 'en'));
     }
 
     public function getContainer()

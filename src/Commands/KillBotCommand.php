@@ -19,8 +19,7 @@ class KillBotCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'Kills the bot so that it can start only from server.' . "\n" .
-            'The bot will be killed only if the command came from the administrator.';
+        return static::getTranslator()->trans('kill_bot_command_description');
     }
 
     /**

@@ -1,4 +1,8 @@
 services:
+    ducha.telegram-bot.translator:
+        class: Ducha\TelegramBot\Translation\Translator
+        arguments: ['%locale%']
+
     ducha.telegram-bot.telegram:
         class: Ducha\TelegramBot\Telegram
         arguments: ['%telegram_bot_token%']
@@ -16,11 +20,11 @@ services:
 
     ducha.telegram-bot.poll.stat.manager:
         class: Ducha\TelegramBot\Redis\PollStatManager
-        arguments: ['@ducha.telegram-bot.storage']
+        arguments: ['@ducha.telegram-bot.storage', '@ducha.telegram-bot.translator']
 
     ducha.telegram-bot.poll.survey.stat.manager:
         class: Ducha\TelegramBot\Redis\PollSurveyStatManager
-        arguments: ['@ducha.telegram-bot.storage']
+        arguments: ['@ducha.telegram-bot.storage', '@ducha.telegram-bot.translator']
 
     ducha.telegram-bot.group.manager:
         class: Ducha\TelegramBot\Redis\GroupManager

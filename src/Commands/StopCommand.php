@@ -21,8 +21,7 @@ class StopCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        // Бот будет остановлен только в том случае, если команда пришла от администратора.
-        return 'The bot will be stopped only if the command came from the administrator.';
+        return static::getTranslator()->trans('stop_command_description');
     }
 
     /**

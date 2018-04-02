@@ -43,8 +43,11 @@ class PollStartCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'Start poll. The command is available only in group chat. ' . "\n" .
-            ' Formats: 1) ' . static::getName() . ' number ; 2) ' . static::getName() . ' string ; 3) ' . static::getName();
+        return static::getTranslator()->trans('poll_start_command_description', array(
+            '%format1%' => static::getName() . ' number',
+            '%format2%' => static::getName() . ' name',
+            '%format3%' => static::getName()
+        ));
     }
 
     /**
@@ -58,10 +61,10 @@ class PollStartCommand extends AbstractCommand
             if ($poll instanceof Poll){
                 $pollSurvey = PollSurvey::getInstance($message->getChatId(), $poll->getId(), $this->telegram, $this->storage, $this->handler);
                 if ($pollSurvey instanceof PollSurvey){
-                    $this->telegram->sendMessage($message->getChatId(), 'Poll Survey already goes in this chat. Try once more later.');
+                    $this->telegram->sendMessage($message->getChatId(), $this->translator->trans('poll_survey_already_conducting'));
                 }else{
                     if ($this->hasAnyPollSurveyForChat($message->getChatId())){
-                        $this->telegram->sendMessage($message->getChatId(), 'Other Poll Survey already goes in this chat. Try once more later.');
+                        $this->telegram->sendMessage($message->getChatId(), $this->translator->trans('other_poll_survey_already_conducting'));
                     }else{
                         $pollSurvey = new PollSurvey($message->getChatId(), $poll, $this->telegram, $this->storage, $this->handler);
                         $pollSurvey->start($message);
@@ -69,7 +72,7 @@ class PollStartCommand extends AbstractCommand
                 }
             }else{
                 $this->telegram->sendMessage($message->getChatId(),
-                 'Can not find any poll. Seems you need to create a poll, the one at least.' . $this->getWarning()
+                    $this->translator->trans('can_not_find_any_poll') . $this->getWarning()
                 );
             }
         }

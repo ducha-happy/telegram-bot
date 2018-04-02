@@ -23,7 +23,7 @@ class PollCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'This command processes a poll';
+        return static::getTranslator()->trans('poll_command_description');
     }
 
     /**

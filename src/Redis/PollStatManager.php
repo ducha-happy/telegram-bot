@@ -9,20 +9,31 @@ use Ducha\TelegramBot\Storage\RedisStorage;
 use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Ducha\TelegramBot\Types\Group;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class PollStatManager implements PollStatManagerInterface
 {
     const UNDERLINE = '-----------------';
 
+    /**
+     * @var TranslatorInterface $translator
+     */
+    protected $translator;
+
+    /**
+     * @var RedisStorage $storage
+     */
     protected $storage;
 
     /**
      * RedisPollManager constructor.
      * @param RedisStorage $storage
+     * @param TranslatorInterface $translator
      */
-    public function __construct(RedisStorage $storage)
+    public function __construct(RedisStorage $storage, TranslatorInterface $translator)
     {
         $this->storage = $storage;
+        $this->translator = $translator;
     }
 
     /**
@@ -68,7 +79,13 @@ class PollStatManager implements PollStatManagerInterface
             return false;
         }
 
-        $texts = array(HtmlFormatter::bold($group->getTitle() . ' - ' . $poll->getName()), static::UNDERLINE);
+        $texts = array(
+            HtmlFormatter::bold($group->getTitle() . ' - ' . $poll->getName()),
+            HtmlFormatter::bold(
+                sprintf('%s: %s', $this->translator->trans('total_voting'), count($group))
+            ),
+            static::UNDERLINE
+        );
 
         $key = static::getStatStorageKey($chatId, $pollId);
         $survey = $this->storage->get($key);
@@ -90,6 +107,7 @@ class PollStatManager implements PollStatManagerInterface
     {
         switch ($variant){
             case 1:
+                $questionCounter = 0;
                 foreach ($state as $question){
                     $lines = array(HtmlFormatter::bold($question['title']), static::UNDERLINE);
                     $counter = $temp = array();
@@ -97,20 +115,28 @@ class PollStatManager implements PollStatManagerInterface
                         $replyText = $reply['text'];
                         if (!isset($counter[$replyText])){
                             $counter[$replyText] = 0;
-                        }                        
+                        }
                         $counter[$replyText]++;
                         $temp[$replyText][] = $reply['from']['first_name'];
                     }
                     foreach ($temp as $replyText => $names){
-                        $lines[] = HtmlFormatter::bold(sprintf('Ответ(%s):', $replyText));
+                        $lines[] = HtmlFormatter::bold(
+                            sprintf('%s(%s):', $this->translator->trans('response'), $replyText)
+                        );
                         foreach ($names as $name){
                             $lines[] = $name;
                         }
                     }
                     $lines[] = static::UNDERLINE;
-                    $lines[] = HtmlFormatter::bold(sprintf('Total voted: %s', count($counter)));
+                    $lines[] = HtmlFormatter::bold(
+                        sprintf('%s: ', $this->translator->trans('total_voted'))
+                    );
                     foreach ($counter as $replyText => $score) {
                         $lines[] = sprintf('%s - (%s)', $replyText, $score);
+                    }
+                    $questionCounter++;
+                    if (count($state) > $questionCounter){
+                        $lines[] = static::UNDERLINE;
                     }
                     if (count($lines) > 3){
                         $texts[] = implode("\n", $lines);
@@ -121,6 +147,7 @@ class PollStatManager implements PollStatManagerInterface
                 }
                 break;
             default:
+                $questionCounter = 0;
                 foreach ($state as $question){
                     $lines = array(HtmlFormatter::bold($question['title']), static::UNDERLINE);
                     $counter = array();
@@ -133,9 +160,15 @@ class PollStatManager implements PollStatManagerInterface
                         $counter[$replyText]++;
                     }
                     $lines[] = static::UNDERLINE;
-                    $lines[] = HtmlFormatter::bold(sprintf('Total voted: %s', count($counter)));
+                    $lines[] = HtmlFormatter::bold(
+                        sprintf('%s:', $this->translator->trans('total_voted'))
+                    );
                     foreach ($counter as $replyText => $score) {
                         $lines[] = sprintf('%s - (%s)', $replyText, $score);
+                    }
+                    $questionCounter++;
+                    if (count($state) > $questionCounter){
+                        $lines[] = static::UNDERLINE;
                     }
                     if (count($lines) > 3){
                         $texts[] = implode("\n", $lines);

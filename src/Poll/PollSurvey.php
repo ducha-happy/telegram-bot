@@ -10,6 +10,7 @@ use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Ducha\TelegramBot\Types\Message;
 use Ducha\TelegramBot\Telegram;
 use Ducha\TelegramBot\Types\ReplyKeyboardRemove;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class PollSurvey implements \Serializable
 {
@@ -63,6 +64,11 @@ class PollSurvey implements \Serializable
     protected $statManager;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * PollSurvey constructor.
      *
      * @param string $chatId
@@ -111,6 +117,7 @@ class PollSurvey implements \Serializable
         $this->storage = $storage;
         $this->statManager = $handler->getPollStatManager();
         $this->groupManager = $handler->getGroupManager();
+        $this->translator = $handler->getContainer()->get('ducha.telegram-bot.translator');
 
         if (property_exists($this, 'poll_id')){
             $key = StorageKeysHolder::getPollKey($this->poll_id);
@@ -218,7 +225,7 @@ class PollSurvey implements \Serializable
         
         if ($replyToMessage !== false){
             foreach ($this->state as &$item){
-                if ($item['message_id'] == $replyToMessage['message_id']){
+                if ($item['message_id'] == $replyToMessage['message_id'] && !isset($item['completed'])){
                     $item['replies'][ $from['id'] ] = array('from' => $from, 'text' => $message->getText());
                     $this->haveAllRepliesFor($item);
                     $this->storage->set(self::getStorageKey($this->chat_id, $this->poll->getId()), $this);
@@ -293,7 +300,8 @@ class PollSurvey implements \Serializable
         $this->storage->remove(self::getStorageKey($this->chat_id, $this->poll->getId()));
         $result = $this->statManager->getStat($this->chat_id, $this->poll->getId());
 
-        $text = HtmlFormatter::bold('This poll is finished! Thank you for your replies!');
+        $text = HtmlFormatter::bold($this->translator->trans('poll_survey_finished'));
+
         if (!empty($result)){
             $text .= "\n" . $result;
         }
@@ -308,7 +316,7 @@ class PollSurvey implements \Serializable
     {
         foreach ($this->state as $item){
             if ($item['title'] == $question->getTitle()){
-                if (isset($item['reply'])){
+                if (isset($item['completed'])){
                     return true;
                 }
             }
@@ -357,6 +365,14 @@ class PollSurvey implements \Serializable
     public function get()
     {
         $this->storage->get(self::getStorageKey($this->chat_id, $this->poll->getId()));
+    }
+
+    /**
+     * @return bool|\Ducha\TelegramBot\Types\Group
+     */
+    public function getGroup()
+    {
+        return $this->groupManager->getGroup($this->chat_id);
     }
    
 }

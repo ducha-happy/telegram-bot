@@ -1,0 +1,282 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="ru" datatype="plaintext" original="messages.en.xliff" >
+        <body>
+            <trans-unit id="telegram_bot_description">
+                <source>telegram_bot_description</source>
+                <target>
+                    С моей помощью вы можете создавать опросы и запускать их в ваших группах!
+                    Так вы можете создать опрос с помощью "%poll_create_command_name%" и запустить его в любой группе, где я есть, с помощью "%poll_start_command_name% name" или "%poll_start_command_name% number".
+                    Вы можете найти все ваши опросы и статистику по ним с помощью "%start_command_name%".
+                </target>
+            </trans-unit>
+
+            <trans-unit id="kill_bot_command_description">
+                <source>kill_bot_command_description</source>
+                <target>Эта команда "убивает" бота полностью. После этого он может быть запущен снова только на сервере. Бот "убивается" только в том случае, если команда пришла от администратора.</target>
+            </trans-unit>
+
+            <trans-unit id="list_command_description">
+                <source>list_command_description</source>
+                <target>Команда показывает список доступных команд</target>
+            </trans-unit>
+
+            <trans-unit id="new_chat_command_description">
+                <source>new_chat_command_description</source>
+                <target>Команда обрабатывает добавление(удаление) участника чата</target>
+            </trans-unit>
+
+            <trans-unit id="people_command_description">
+                <source>people_command_description</source>
+                <target>Команда показывает сколько людей в чате известно боту. Соответственно, это команда только для групп.</target>
+            </trans-unit>
+
+            <trans-unit id="people_command_no_info">
+                <source>people_command_no_info</source>
+                <target>Извините. У меня нет информации.</target>
+            </trans-unit>
+
+            <trans-unit id="people_command_count_humans">
+                <source>people_command_count_humans</source>
+                <target>%count% людей в чате</target>
+            </trans-unit>
+
+            <trans-unit id="ping_command_description">
+                <source>ping_command_description</source>
+                <target>Команда - послать pong сообщение. Это команда для тестирования бота.</target>
+            </trans-unit>
+
+            <trans-unit id="poll_command_description">
+                <source>poll_command_description</source>
+                <target>Эта команда ведет процесс опроса.</target>
+            </trans-unit>
+
+            <trans-unit id="poll_survey_finished">
+                <source>poll_survey_finished</source>
+                <target>Опрос завершён! Спасибо всем за ответы!</target>
+            </trans-unit>
+
+            <trans-unit id="yes">
+                <source>yes</source>
+                <target>Да</target>
+            </trans-unit>
+
+            <trans-unit id="no">
+                <source>no</source>
+                <target>Нет</target>
+            </trans-unit>
+
+            <trans-unit id="ask_next_question">
+                <source>ask_next_question</source>
+                <target>Вы хотите задать следующий вопрос?</target>
+            </trans-unit>
+
+            <trans-unit id="poll_created_successfully">
+                <source>poll_created_successfully</source>
+                <target>Ваш опрос успешно создан!</target>
+            </trans-unit>
+
+            <trans-unit id="now_you_can_lead_poll">
+                <source>now_you_can_lead_poll</source>
+                <target>Теперь вы можете проводить опрос в любой группе с помощью "%command%"!</target>
+            </trans-unit>
+
+            <trans-unit id="you_can_find_all_your_polls">
+                <source>you_can_find_all_your_polls</source>
+                <target>Вы можете найти все ваши опросы и статистику по ним с помощью "%command%"!</target>
+            </trans-unit>
+
+            <trans-unit id="poll_already_exists">
+                <source>poll_already_exists</source>
+                <target>Опрос с таким именем уже существует. Попробуйте другое имя.</target>
+            </trans-unit>
+
+            <trans-unit id="poll_start_command_description">
+                <source>poll_start_command_description</source>
+                <target>
+                    Команда запускает опрос. Предназначена только для групп.
+                    Форматы: 1) %format1%; 2) %format2%; 3) %format3%.
+                </target>
+            </trans-unit>
+
+            <trans-unit id="poll_survey_already_conducting">
+                <source>poll_survey_already_conducting</source>
+                <target>Этот опрос уже проводится в этом чате.</target>
+            </trans-unit>
+
+            <trans-unit id="other_poll_survey_already_conducting">
+                <source>other_poll_survey_already_conducting</source>
+                <target>В этом чате уже проводится другой опрос. Попробуйте еще раз позднее.</target>
+            </trans-unit>
+
+            <trans-unit id="can_not_find_any_poll">
+                <source>can_not_find_any_poll</source>
+                <target>Нет ни одного опроса. По крайней мере, вам нужно создать хотя бы один.</target>
+            </trans-unit>
+
+            <trans-unit id="run_command_description">
+                <source>run_command_description</source>
+                <target>Команда запускает бота. Бот будет запущен только, если данная команда поступит от администратора.</target>
+            </trans-unit>
+
+            <trans-unit id="can_not_find_the_poll">
+                <source>can_not_find_the_poll</source>
+                <target>Извините. Не могу найти опрос с номером %number%</target>
+            </trans-unit>
+
+            <trans-unit id="you_can_start_the_poll">
+                <source>you_can_start_the_poll</source>
+                <target>Вы можете провести опрос в любой группе, где я есть, с помощью %command%</target>
+            </trans-unit>
+
+            <trans-unit id="can_not_find_the_statistic">
+                <source>can_not_find_the_statistic</source>
+                <target>Извините. Не могу найти статистику для опроса с номером %number%</target>
+            </trans-unit>
+
+            <trans-unit id="can_not_remove_the_poll">
+                <source>can_not_remove_the_poll</source>
+                <target>Извините. Не могу удалить опрос с номером %number%</target>
+            </trans-unit>
+
+            <trans-unit id="poll_was_removed">
+                <source>poll_was_removed</source>
+                <target>Ok. Ваш опрос с номером %number% был удалён!</target>
+            </trans-unit>
+
+            <trans-unit id="can_not_remove_the_poll_in_time_of_conducting">
+                <source>can_not_remove_the_poll_in_time_of_conducting</source>
+                <target>Извините. Не могу удалить опрос с номером %number% во время проведения - сначала удалите статистику по нему.</target>
+            </trans-unit>
+
+            <trans-unit id="to_create_poll">
+                <source>to_create_poll</source>
+                <target>Чтобы создать опрос используйте эту команду %command%</target>
+            </trans-unit>
+
+            <trans-unit id="conducting_of_poll_was_canceled">
+                <source>conducting_of_poll_was_canceled</source>
+                <target>Сожалею, но проведение данного опроса ("%poll_id% - %poll_name%") было отменено его создателем.</target>
+            </trans-unit>
+
+            <trans-unit id="statistic_was_removed">
+                <source>statistic_was_removed</source>
+                <target>Статистика для ("%group_title% - %poll_name%") была удалена.</target>
+            </trans-unit>
+
+            <trans-unit id="select_statistic_for_poll">
+                <source>select_statistic_for_poll</source>
+                <target>Выберите статистику для вашего опроса (%poll_id% - %poll_name%).</target>
+            </trans-unit>
+
+            <trans-unit id="you_have_not_any_polls">
+                <source>you_have_not_any_polls</source>
+                <target>У вас нет ни одного опроса. Чтобы создать опрос используйте "%command%" команду.</target>
+            </trans-unit>
+
+            <trans-unit id="select_menu_point">
+                <source>select_menu_point</source>
+                <target>Выберите пункт меню - что вы хотите, чтобы я сделал!</target>
+            </trans-unit>
+
+            <trans-unit id="main_menu_caption">
+                <source>main_menu_caption</source>
+                <target>Главное</target>
+            </trans-unit>
+
+            <trans-unit id="all_polls_menu_caption">
+                <source>all_polls_menu_caption</source>
+                <target>Все опросы</target>
+            </trans-unit>
+
+            <trans-unit id="poll_show_stat_menu_caption">
+                <source>poll_show_stat_menu_caption</source>
+                <target>Статистика</target>
+            </trans-unit>
+
+            <trans-unit id="poll_create_action_caption">
+                <source>poll_create_action_caption</source>
+                <target>Создать опрос</target>
+            </trans-unit>
+
+            <trans-unit id="poll_remove_action_caption">
+                <source>poll_remove_action_caption</source>
+                <target>Удалить опрос</target>
+            </trans-unit>
+
+            <trans-unit id="poll_show_action_caption">
+                <source>poll_show_action_caption</source>
+                <target>Подробности</target>
+            </trans-unit>
+
+            <trans-unit id="poll_show_stat_action_caption">
+                <source>poll_show_stat_action_caption</source>
+                <target>Статистика</target>
+            </trans-unit>
+
+            <trans-unit id="poll_show_stat_action_uncompleted_caption">
+                <source>poll_show_stat_action_uncompleted_caption</source>
+                <target>Незавершённая Статистика</target>
+            </trans-unit>
+
+            <trans-unit id="poll_stat_remove_action_caption">
+                <source>poll_stat_remove_action_caption</source>
+                <target>Удалить статистику</target>
+            </trans-unit>
+
+            <trans-unit id="stop_command_description">
+                <source>stop_command_description</source>
+                <target>Команда - остановить бота. Бот будет остановлен только в том случае, если команда пришла от администратора.</target>
+            </trans-unit>
+
+            <trans-unit id="poll_create_command_description">
+                <source>poll_create_command_description</source>
+                <target>
+                    Команда создаёт опрос. Команда доступна только в чатных чатах.
+                    Форматы: 1) %format1%; 2) %format2%.
+                </target>
+            </trans-unit>
+
+            <trans-unit id="start_command_description">
+                <source>start_command_description</source>
+                <target>Команда запускает интерактивное меню, чтобы пользователь мог управлять своими опросами. Команда доступна только в чатных чатах.</target>
+            </trans-unit>
+
+            <trans-unit id="select_poll_and_action">
+                <source>select_poll_and_action</source>
+                <target>Выберите ваш опрос или действие, что вы хотите.</target>
+            </trans-unit>
+
+            <trans-unit id="go_to_and_try_there">
+                <source>go_to_and_try_there</source>
+                <target>Идите в %bot_name% и попробуйте %command% там</target>
+            </trans-unit>
+
+            <trans-unit id="response">
+                <source>response</source>
+                <target>Ответ</target>
+            </trans-unit>
+
+            <trans-unit id="responses">
+                <source>responses</source>
+                <target>Ответы</target>
+            </trans-unit>
+
+            <trans-unit id="question">
+                <source>question</source>
+                <target>Вопрос</target>
+            </trans-unit>
+
+            <trans-unit id="total_voted">
+                <source>total_voted</source>
+                <target>Проголосовало</target>
+            </trans-unit>
+
+            <trans-unit id="total_voting">
+                <source>total_voting</source>
+                <target>Голосующих</target>
+            </trans-unit>
+
+        </body>
+    </file>
+</xliff>

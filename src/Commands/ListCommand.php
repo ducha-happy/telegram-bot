@@ -24,7 +24,7 @@ class ListCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'show list available commands';
+        return static::getTranslator()->trans('list_command_description');
     }
 
     /**

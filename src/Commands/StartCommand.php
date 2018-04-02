@@ -7,6 +7,7 @@ use Ducha\TelegramBot\Formatter\HtmlFormatter;
 use Ducha\TelegramBot\GroupManagerInterface;
 use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Poll\PollManagerInterface;
+use Ducha\TelegramBot\Poll\PollQuestion;
 use Ducha\TelegramBot\Poll\PollStatManagerInterface;
 use Ducha\TelegramBot\Redis\PollSurveyStatManager;
 use Ducha\TelegramBot\Storage\StorageKeysHolder;
@@ -58,7 +59,8 @@ class StartCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'Start menu for a user to manage their polls. This command is available only for private chat.';
+        //return 'Start menu for a user to manage their polls. This command is available only for private chat.';
+        return static::getTranslator()->trans('start_command_description');
     }
 
     protected static function ucFirstEveryWord($key)
@@ -146,6 +148,44 @@ class StartCommand extends AbstractCommand
     }
 
     /**
+     * Get content of a poll
+     * @param Poll $poll
+     * @return string
+     */
+    public function getPollContent(Poll $poll)
+    {
+        $title = $poll->getId() . ' ' . $poll->getName();
+        $delimiter = '';
+        for ($i = 0; $i < mb_strlen($title); $i++){
+            $delimiter .= '-';
+        }
+
+        $temp = array(
+            HtmlFormatter::bold($title),
+            $delimiter
+        );
+
+        foreach ($poll->getQuestions() as $question){
+            if (!$question instanceof PollQuestion){
+                throw new \LogicException(sprintf('Something is wrong: var question must be an instance of %s', PollQuestion::class));
+            }
+            $temp[] = HtmlFormatter::bold($this->translator->trans('question') . ': ') . $question->getTitle();
+            $replies = array();
+            foreach ($question->getReplies() as $reply) {
+                $replies[] = $reply;
+            }
+            $temp[] = HtmlFormatter::bold($this->translator->trans('responses') . ': ') . implode(", ", $replies);
+            $temp[] = '-';
+        }
+        unset($temp[ count($temp)-1 ]);
+
+        $temp[] = $delimiter;
+        $temp[] = '';
+
+        return implode("\n", $temp);
+    }
+
+    /**
      * Get info about poll
      * 
      * @param int $chatId
@@ -154,13 +194,13 @@ class StartCommand extends AbstractCommand
     protected function pollShowAction($chatId, $pollId)
     {
         $poll = $this->pollManager->getPollById($pollId);
-        $text = sprintf('Sorry. Can not find the poll with number %s', $pollId);
+        $text = $this->translator->trans('can_not_find_the_poll', array('%number%' => $pollId));
         if ($poll instanceof Poll){
             $userId = $poll->getUserId();
             if ($userId == $chatId){
                 $lines = array(
-                    $poll->getContent(),
-                    sprintf('You can start this poll in any group where i live with "%s %s"', PollStartCommand::getName(), $pollId)
+                    $this->getPollContent($poll),
+                    $this->translator->trans('you_can_start_the_poll', array('%command%' => PollStartCommand::getName() . ' ' . $pollId))
                 );
                 $text = implode("\n", $lines);
             }
@@ -183,7 +223,7 @@ class StartCommand extends AbstractCommand
     protected function pollShowStatAction($chatId, $pollId, $statChatId, $uncompleted = null)
     {
         $poll = $this->pollManager->getPollById($pollId);
-        $text = sprintf('Sorry. Can not find the stat for the poll with number %s', $pollId);
+        $text = $this->translator->trans('can_not_find_the_statistic', array('%number%' => $pollId));
         if ($poll instanceof Poll){
             $userId = $poll->getUserId();
             if ($userId == $chatId){
@@ -240,15 +280,16 @@ class StartCommand extends AbstractCommand
     protected function pollRemoveAction($chatId, $pollId)
     {
         $poll = $this->pollManager->getPollById($pollId);
-        $text = sprintf('Sorry. Can not remove poll with number %s', $pollId);
+        $text = $this->translator->trans('can_not_remove_the_poll', array('%number%' => $pollId));
         if ($poll instanceof Poll){
             if ($chatId == $poll->getUserId()){
                 //test that not survey for that poll
                 if (!$this->hasSurveyFor($pollId)){
                     $this->pollManager->removePoll($pollId);
-                    $text = sprintf('Ok. Your poll with number %s is removed!', $pollId);
+                    $text = $this->translator->trans('poll_was_removed', array('%number%' => $pollId));
                 }else{
-                    $text = sprintf('Sorry. Can not remove poll with number %s because there is a survey for that poll - remove the survey first', $pollId);
+                    $text = $this->translator->trans('can_not_remove_the_poll_in_time_of_conducting', array('%number%' => $pollId));
+                    $text = HtmlFormatter::bold($text);
                 }
             }
         }
@@ -261,7 +302,7 @@ class StartCommand extends AbstractCommand
 
     protected function pollCreateAction($chatId)
     {
-        $text = sprintf('To create a poll use this command "%s"', PollCreateCommand::getName());
+        $text = $this->translator->trans('to_create_poll', array('%command%' => PollCreateCommand::getName()));
 
         $keyboard = $this->getAllPollsMenuKeyboard($chatId);
         $keyboard = json_encode($keyboard);
@@ -294,12 +335,12 @@ class StartCommand extends AbstractCommand
             // send message to a chat with survey and remove all keyboards there
             $keyboard = new ReplyKeyboardRemove(true, false);
             $keyboard = json_encode($keyboard);
-            $text = sprintf('I am very sorry but this survey ("%s - %s") was removed by owner.', $poll->getId(), $poll->getName());
+            $text = $this->translator->trans('conducting_of_poll_was_canceled', array('%poll_id%' => $pollId, '%poll_name%' => $poll->getName()));
             $this->telegram->sendMessage($statChatId, HtmlFormatter::bold($text), 'HTML', false, null, $keyboard);
         }
 
         if ($isRemove){
-            $text = sprintf('The stat for ("%s - %s") was removed.', $group->getTitle(), $poll->getName());
+            $text = $this->translator->trans('statistic_was_removed', array('%group_title%' => $group->getTitle(), '%poll_name%' => $poll->getName()));
         }else{
             $text = 'Ok. But nothing was removed.';
         }
@@ -358,7 +399,7 @@ class StartCommand extends AbstractCommand
         $pollShowStatUncompletedPoint = $points['poll_show_stat_action_uncompleted'];
 
         $poll = $this->pollManager->getPollById($pollId);
-        $text = sprintf('Select the statistic for your poll (%s - %s) ', $poll->getId(), $poll->getName());
+        $text = $this->translator->trans('select_statistic_for_poll', array('%poll_id%' => $pollId, '%poll_name%' => $poll->getName()));
         $text = HtmlFormatter::bold($text);
 
         $pattern = sprintf(StorageKeysHolder::getCompletedSurveyPattern(), '*', $pollId);
@@ -405,11 +446,11 @@ class StartCommand extends AbstractCommand
         $pollRemovePoint = $points['poll_remove_action'];
         $pollShowStatMenuPoint = $points['poll_show_stat_menu'];
 
-        $text = 'Select your poll and action what you want.';
+        $text = $this->translator->trans('select_poll_and_action');
         $polls = $this->pollManager->getPollsByUserId($chatId);
 
         if (empty($polls)){
-            $text = sprintf('It seems you have not any polls yet. To create a poll, You can use "%s" command', PollCreateCommand::getName());
+            $text = $this->translator->trans('you_have_not_any_polls', array('%command%' => PollCreateCommand::getName()));
         }
         //$text = HtmlFormatter::bold($text);
         $rows = array();
@@ -444,8 +485,8 @@ class StartCommand extends AbstractCommand
         $points = $this->getCallbackPoints();
         $allPollsPoint = $points['all_polls_menu'];
         $createPollPoint = $points['poll_create_action'];
-        
-        $text = 'Select a menu point what do you want me to do for you!';
+
+        $text = $this->translator->trans('select_menu_point');
         $rows = array(
             array(
                 new InlineKeyboardButton($allPollsPoint['caption'], '', sprintf($allPollsPoint['callback_data'], $chatId)) //chatId is the same as userId
@@ -536,47 +577,47 @@ class StartCommand extends AbstractCommand
     {
         return array(
             'main_menu' => array(
-                'caption' => 'Main Menu',
+                'caption' => $this->translator->trans('main_menu_caption'),
                 'pattern' => '|^main_menu$|',
                 'callback_data' => 'main_menu',
             ),
             'all_polls_menu' => array(
-                'caption' => 'All Polls',
+                'caption' => $this->translator->trans('all_polls_menu_caption'),
                 'pattern' => '|^all_polls_menu\.\d+$|', //userId
                 'callback_data' => 'all_polls_menu.%s',
             ),
             'poll_show_stat_menu' => array(
-                'caption' => 'Poll Show Stat Menu',
+                'caption' => $this->translator->trans('poll_show_stat_menu_caption'),
                 'pattern' => '|^poll_show_stat_menu\.\d+$|', //pollId
                 'callback_data' => 'poll_show_stat_menu.%s',
             ),
             'poll_create_action' => array(
-                'caption' => 'Poll Create',
+                'caption' => $this->translator->trans('poll_create_action_caption'),
                 'pattern' => '|^poll_create_action$|',
                 'callback_data' => 'poll_create_action',
             ),
             'poll_remove_action' => array(
-                'caption' => 'Poll Remove',
+                'caption' => $this->translator->trans('poll_remove_action_caption'),
                 'pattern' => '|^poll_remove_action\.\d+$|', //pollId
                 'callback_data' => 'poll_remove_action.%s',
             ),
             'poll_show_action' => array(
-                'caption' => 'Poll Show',
+                'caption' => $this->translator->trans('poll_show_action_caption'),
                 'pattern' => '|^poll_show_action\.\d+$|', //pollId
                 'callback_data' => 'poll_show_action.%s',
             ),
             'poll_show_stat_action' => array(
-                'caption' => 'Poll Show Stat',
+                'caption' => $this->translator->trans('poll_show_stat_action_caption'),
                 'pattern' => '|^poll_show_stat_action\.-\d+\.\d+$|', //chatId pollId
                 'callback_data' => 'poll_show_stat_action.%s.%s',
             ),
             'poll_show_stat_action_uncompleted' => array(
-                'caption' => 'Poll Show Stat Uncompleted',
+                'caption' => $this->translator->trans('poll_show_stat_action_uncompleted_caption'),
                 'pattern' => '|^poll_show_stat_action\.-\d+\.\d+\.uncompleted$|', //chatId pollId
                 'callback_data' => 'poll_show_stat_action.%s.%s.uncompleted',
             ),
             'poll_stat_remove_action' => array(
-                'caption' => 'Poll Stat Remove',
+                'caption' => $this->translator->trans('poll_stat_remove_action_caption'),
                 'pattern' => '|^poll_stat_remove_action\.-\d+\.\d+(\.uncompleted){0,1}$|', //chatId pollId
                 'callback_data' => 'poll_stat_remove_action.%s.%s',
             ),
@@ -613,14 +654,12 @@ class StartCommand extends AbstractCommand
             if ($this->stringIsCommand($message->getText())){
                 $lines = array(
                     StartCommand::getDescription(),
-                    sprintf('Go to @%s and use there %s', $this->getBotName(), StartCommand::getName())
+                    $this->translator->trans('go_to_and_try_there', array('%bot_name%' => '@' . $this->getBotName(), '%command%' => StartCommand::getName()))
                 );
                 $text = implode("\n", $lines);
 
                 $this->telegram->sendMessage($message->getChatId(), $text);
             }
-
-
         }
 
         if ($this->hasCallbackQuery($data)){

@@ -8,3 +8,4 @@ parameters:
     telegram_bot_need_command_handler_log : true
     telegram_bot_need_requests_log :  false
     telegram_bot_need_responses_log : false
+    locale : ru

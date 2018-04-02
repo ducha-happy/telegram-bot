@@ -19,7 +19,7 @@ class PingCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return 'Send pong message. This command is only for test.';
+        return static::getTranslator()->trans('ping_command_description');
     }
 
     /**

@@ -7,6 +7,7 @@ use Ducha\TelegramBot\Telegram;
 use Ducha\TelegramBot\Types\CallbackQuery;
 use Ducha\TelegramBot\Types\Message;
 use Ducha\TelegramBot\Storage\StorageInterface;
+use Symfony\Component\Translation\Translator;
 
 abstract class AbstractCommand implements CommandInterface
 {
@@ -31,6 +32,15 @@ abstract class AbstractCommand implements CommandInterface
      */
     protected $telegram;
 
+    /**
+     * Symfony Translator
+     *
+     * @var Translator
+     */
+    protected $translator;
+
+    private static $_instances = array();
+
     public function __construct(CommandHandler $handler)
     {
         $this->handler = $handler;
@@ -40,6 +50,8 @@ abstract class AbstractCommand implements CommandInterface
         }
         $this->storage = $storage;
         $this->telegram = $this->handler->getTelegramBot()->getTelegram();
+        $this->translator = $this->handler->getContainer()->get('ducha.telegram-bot.translator');
+        self::$_instances['translator'] = $this->translator;
     }
 
     /**
@@ -194,13 +206,16 @@ abstract class AbstractCommand implements CommandInterface
      */
     public function getWarning()
     {
-        $text = 'Go to @%s and try %s ';
+        $arguments = '';
         $temp = class_uses($this);
         if (is_array($temp) && array_search(ArgumentsAwareTrait::class, $temp) !== false){
-            $text .= (empty($this->arguments)?'':implode(' ', $this->arguments));
+            $arguments = (empty($this->arguments)?'':implode(' ', $this->arguments));
         }
-        $text .= ' there';
-        $text = sprintf($text, $this->getBotName(), static::getName());
+
+        $text = $this->translator->trans('go_to_and_try_there', array(
+            '%bot_name%' => '@' . $this->getBotName(),
+            '%command%' => static::getName() . ' ' . $arguments
+        ));
 
         return $text;
     }
@@ -216,5 +231,16 @@ abstract class AbstractCommand implements CommandInterface
     public function stringIsCommand($str)
     {
         return $str == static::getName() || $str == static::getName() . '@' . $this->getBotName();
+    }
+
+    public static function __callStatic($method, $args)
+    {
+        if ($method == 'getTranslator'){
+            if (isset(self::$_instances['translator'])){
+                return self::$_instances['translator'];
+            }
+        }
+
+        return false;
     }
 }

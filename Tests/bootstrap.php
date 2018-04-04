@@ -44,9 +44,11 @@ spl_autoload_register(
             $classes = array(
                 'ducha\\telegrambot\\tests\\telegramdata' => '/TelegramData.php',
                 'ducha\\telegrambot\\tests\\privateprotectedawaretrait' => '/PrivateProtectedAwareTrait.php',
-                'ducha\\telegrambot\\tests\\helpers\\pollsurveyhelper' => '/Helpers/PollSurveyHelper.php',
+                'ducha\\telegrambot\\tests\\helpers\\pollsurveyimitator' => '/Helpers/PollSurveyImitator.php',
                 'ducha\\telegrambot\\tests\\helpers\\groupmanagerhelper' => '/Helpers/GroupManagerHelper.php',
-                'ducha\\telegrambot\\tests\\commands\\commandhandlerawaretrait' => '/Commands/CommandHandlerAwareTrait.php'
+                'ducha\\telegrambot\\tests\\commands\\commandhandlerawaretrait' => '/Commands/CommandHandlerAwareTrait.php',
+                'ducha\\telegrambot\\tests\\commands\\abstractcommandtest' => '/Commands/AbstractCommandTest.php',
+                'ducha\\telegrambot\\tests\\abstracttest' => '/AbstractTest.php'
             );
         }
         $cn = strtolower($class);

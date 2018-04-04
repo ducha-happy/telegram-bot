@@ -357,14 +357,21 @@ class PollSurvey implements \Serializable
         }
     }
 
+    /**
+     * Save survey in storage
+     */
     public function save()
     {
         $this->storage->set(self::getStorageKey($this->chat_id, $this->poll->getId()), $this);
     }
 
+    /**
+     * Get raw survey from storage
+     * @return mixed
+     */
     public function get()
     {
-        $this->storage->get(self::getStorageKey($this->chat_id, $this->poll->getId()));
+        return $this->storage->get(self::getStorageKey($this->chat_id, $this->poll->getId()));
     }
 
     /**
@@ -373,6 +380,14 @@ class PollSurvey implements \Serializable
     public function getGroup()
     {
         return $this->groupManager->getGroup($this->chat_id);
+    }
+
+    /**
+     * @return Poll
+     */
+    public function getPoll()
+    {
+        return $this->poll;
     }
    
 }

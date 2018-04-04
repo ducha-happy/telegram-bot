@@ -4,7 +4,7 @@ namespace Ducha\TelegramBot\Tests\Helpers;
 
 use Ducha\TelegramBot\Poll\PollSurvey;
 
-class PollSurveyHelper extends PollSurvey
+class PollSurveyImitator extends PollSurvey
 {
     public $state;
 }

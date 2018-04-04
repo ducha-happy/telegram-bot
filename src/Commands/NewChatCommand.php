@@ -78,7 +78,7 @@ class NewChatCommand extends AbstractCommand
         $message = $this->getMessage($data);
 
         // the command must not be executed obviously
-        if ($message->getText() == self::getName()){
+        if ($this->stringIsCommand($message->getText())){
             return false;
         }
 

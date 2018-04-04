@@ -134,7 +134,7 @@ class TelegramBot implements ContainerAwareInterface
                     $lastUpdateId = $updates['result'][count($updates['result']) - 1]['update_id'];
                     $lastUpdateId++;
                     // Write down last update id from telegram bot
-                    file_put_contents($fileOfLastUpdate, $lastUpdateId);
+                    file_put_contents($fileOfLastUpdate, $lastUpdateId); #TODO this must be replaced on a redis key
                     foreach($updates['result'] as $data){
                         $commandHandler->process($data);
                     }

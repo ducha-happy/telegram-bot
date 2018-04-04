@@ -11,7 +11,7 @@ class Telegram
     protected $token;
     protected $baseURL;
     /**
-     * Any other mode and this telegram api will be silent - this is for test goal
+     * For any other than default mode telegram api will be silent
      * @var string $mode default prod
      */
     protected $mode = 'prod';
@@ -168,6 +168,8 @@ class Telegram
 
             return $content;
         }
+
+        return false;
     }
 
     /**

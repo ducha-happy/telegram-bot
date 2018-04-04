@@ -5,80 +5,12 @@
 
 namespace Ducha\TelegramBot\Tests\Commands;
 
-use Ducha\TelegramBot\Commands\StartCommand;
-use Ducha\TelegramBot\Poll\PollManagerInterface;
-use Ducha\TelegramBot\Redis\GroupManager;
-use Ducha\TelegramBot\Storage\RedisStorage;
-use Ducha\TelegramBot\Storage\StorageKeysHolder;
-use Ducha\TelegramBot\Telegram;
-use Ducha\TelegramBot\Tests\PrivateProtectedAwareTrait;
-use PHPUnit\Framework\TestCase;
-use Ducha\TelegramBot\CommandHandler;
+use Ducha\TelegramBot\Poll\PollSurvey;
 use Ducha\TelegramBot\Tests\TelegramData;
+use Ducha\TelegramBot\Types\InlineKeyboardMarkup;
 
-
-class StartCommandTest extends TestCase
+class StartCommandTest extends AbstractCommandTest
 {
-    use PrivateProtectedAwareTrait;
-    use CommandHandlerAwareTrait;
-
-    /**
-     * @var CommandHandler
-     */
-    private $handler;
-    /**
-     * @var StartCommand
-     */
-    private $command;
-    /**
-     * @var array
-     */
-    private $data;
-
-    /**
-     * @var PollManagerInterface
-     */
-    private $pollManager;
-    /**
-     * @var GroupManager
-     */
-    private $groupManager;
-    /**
-     * @var RedisStorage
-     */
-    private $storage;
-
-    /**
-     * Telegram Bot Api
-     *
-     * @var Telegram
-     */
-    protected $telegram;
-
-    public function setUp()
-    {
-        StorageKeysHolder::setPrefix('telegram-test');
-
-        $this->handler = $this->getCommandHandler();
-        $this->command = new StartCommand($this->handler);
-        $this->data = TelegramData::$data;
-        $this->data['message']['text'] = '/start';
-        $this->pollManager = $this->handler->getContainer()->get('ducha.telegram-bot.poll.manager');
-        $this->groupManager = $this->handler->getContainer()->get('ducha.telegram-bot.group.manager');
-        $this->storage = $this->handler->getContainer()->get('ducha.telegram-bot.storage');
-        $this->telegram = $this->handler->getTelegramBot()->getTelegram();
-    }
-
-    public function tearDown()
-    {
-        $this->handler = null;
-        $this->command = null;
-        $this->storage = null;
-        $this->telegram = null;
-        $this->pollManager = null;
-        $this->groupManager = null;
-    }
-
     public function testBotNamesFromConfigAndGetMe()
     {
         $this->telegram->setMode('prod');
@@ -102,27 +34,56 @@ class StartCommandTest extends TestCase
     public function testIsApplicable()
     {
         $data = $this->data;
-        $warning1 = 'For a group chat the "isApplicable" method must return "false"!';
-        $warning2 = 'For a private chat the "isApplicable" method must return "true"!';
+        $chat = &$data['message']['chat'];
 
-        $data['message']['chat']['id'] = TelegramData::GROUP_CHAT_ID;
-        $data['message']['chat']['type'] = 'group';
-        $this->assertFalse($this->command->isApplicable($data), $warning1);
+        $chat['id'] = TelegramData::GROUP_CHAT_ID;
+        foreach (array('group', 'supergroup') as $type){
+            $chat['type'] = $type;
+            $this->assertFalse($this->command->isApplicable($data),
+                sprintf('For a %s chat the "isApplicable" method must return "false"!', $type)
+            );
+        }
 
-        $data['message']['chat']['id'] = TelegramData::PRIVATE_NOT_ADMIN_CHAT_ID;
-        $data['message']['chat']['type'] = 'private';
-        $this->assertTrue($this->command->isApplicable($data), $warning2);
+        $chat['id'] = TelegramData::PRIVATE_NOT_ADMIN_CHAT_ID;
+        $chat['type'] = 'private';
+        $this->assertTrue($this->command->isApplicable($data),
+            'For a private chat the "isApplicable" method must return "true"!'
+        );
     }
 
-    public function testPollStatRemoveAction()
+    public function testGetAllPollsMenuKeyboardMethod()
     {
-        StorageKeysHolder::setPrefix('telegram');
-        $key = StorageKeysHolder::getNotCompletedSurveyKey(-1001233109538, 10);
-        var_dump(
-            $key,
-            $this->storage->exists($key),
-            $this->storage->get($key)
+        $result = $this->invokeMethod($this->command, 'GetAllPollsMenuKeyboard', array(123456));
+        $this->assertInstanceOf(InlineKeyboardMarkup::class, $result,
+            sprintf('Method "%s" must return instance of "%s"', 'getAllPollsMenuKeyboard', InlineKeyboardMarkup::class)
         );
+    }
+
+    public function testPollStatRemoveActionMethod()
+    {
+        $this->storage->clear();
+
+        $survey = $this->createTestSurvey();
+        $pollId = $survey->getPoll()->getId();
+        $chatId = $survey->getChatId();
+        $userId = $survey->getPoll()->getUserId();
+        $result = PollSurvey::getInstance($chatId, $pollId, $this->telegram, $this->storage, $this->handler);
+        $this->assertInstanceOf(PollSurvey::class, $result,
+            sprintf('In current context, the method "%s" must return instance of "%s" ', 'PollSurvey::getInstance', PollSurvey::class)
+        );
+
+        $this->invokeMethod($this->command, 'pollStatRemoveAction', array($userId, $pollId, $chatId));
+        $result = PollSurvey::getInstance($chatId, $pollId, $this->telegram, $this->storage, $this->handler);
+        $this->assertFalse($result,
+            sprintf('In current context, the method "%s" must return false', 'PollSurvey::getInstance')
+        );
+
+        $result = $this->command->getPollContent($survey->getPoll());
+        $this->assertNotEmpty($result,
+            sprintf('In current context, the method "%s" must not return an empty string', 'getPollContent')
+        );
+
+        $this->storage->clear();
     }
 
 }

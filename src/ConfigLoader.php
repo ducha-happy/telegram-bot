@@ -48,17 +48,6 @@ class ConfigLoader
      */
     private function setContainer()
     {
-        $locales = array(
-            'ru' => array(
-                'locale' => 'ru_RU',
-                'country_code' => 'RU',
-            ),
-            'en' => array(
-                'locale' => 'en_US',
-                'country_code' => 'US',
-            ),
-        );
-
         $containerBuilder = new ContainerBuilder();
 
         $file = __DIR__ . '/../app/config/config.yml';
@@ -85,11 +74,29 @@ class ConfigLoader
             $containerBuilder->setParameter($parameter, $value);
         }
 
+        $resources = array();
+        $pattern = '/^messages\.([a-z]{2}_[A-Z]{2})\.xliff$/';
+        $dir = implode(DIRECTORY_SEPARATOR, array(__DIR__, 'Resources', 'translations'));
+        foreach (Finder::create()->files()->in($dir) as $file){
+            if ($file instanceof \SplFileInfo){
+                $fileName = $file->getFilename();
+                if (preg_match($pattern, $fileName, $matches)){
+                    $resources[$matches[1]]['locale'] = $matches[1];
+                    $resources[$matches[1]]['path'] = $file->getPathname();
+                }
+            }
+        }
+
         // check locale and set it correctly with country code
         $locale = $containerBuilder->getParameter('locale');
+        var_dump($locale);
         if (preg_match('/^[a-z]{2}$/', $locale)){
-            if (isset($locales[$locale])){
-                $containerBuilder->setParameter('locale', $locales[$locale]['locale']);
+            foreach ($resources as $resource){
+                $temp = explode('_', $resource['locale']);
+                if ($locale == $temp[0]){
+                    $containerBuilder->setParameter('locale', $resource['locale']);
+                    break;
+                }
             }
         }
 
@@ -114,20 +121,8 @@ class ConfigLoader
         // setting translator
         $translator = $this->container->get('ducha.telegram-bot.translator');
         $translator->addLoader('xliff', new XliffFileLoader());
-        $localesKeys = array_keys($locales);
-        $pattern = '/^messages\.('.implode('|', $localesKeys).')\.xliff$/';
-        $dir = implode(DIRECTORY_SEPARATOR, array(__DIR__, 'Resources', 'translations'));
-        foreach (Finder::create()->files()->in($dir) as $file){
-            if ($file instanceof \SplFileInfo){
-                $fileName = $file->getFilename();
-                if (preg_match($pattern, $fileName, $matches)){
-                    if (isset($locales[$matches[1]])){
-                        $translator->addResource('xliff', $file->getPathname(),
-                            implode('_', array($matches[1], $locales[$matches[1]]['country_code']))
-                        );
-                    }
-                }
-            }
+        foreach ($resources as $resource){
+            $translator->addResource('xliff', $resource['path'], $resource['locale']);
         }
 
         $translator->setFallbackLocales(array('en_US', 'en'));

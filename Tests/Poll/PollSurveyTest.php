@@ -1,6 +1,11 @@
 <?php
 /**
- * phpunit57 -v -c ./phpunit.xml.dist ./Tests/Poll/PollSurveyTest.php
+ * This file is part of the TelegramBot package.
+ *
+ * (c) Andre Vlasov <areyouhappyihopeso@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Ducha\TelegramBot\Tests\Poll;
@@ -8,7 +13,6 @@ namespace Ducha\TelegramBot\Tests\Poll;
 use Ducha\TelegramBot\Poll\PollSurvey;
 use Ducha\TelegramBot\Tests\AbstractTest;
 use Ducha\TelegramBot\Tests\TelegramData;
-
 
 class PollSurveyTest extends AbstractTest
 {

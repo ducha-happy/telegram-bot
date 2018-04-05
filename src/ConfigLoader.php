@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the TelegramBot package.
+ *
+ * (c) Andre Vlasov <areyouhappyihopeso@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Ducha\TelegramBot;
 
@@ -8,7 +16,6 @@ use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Translation\Loader\XliffFileLoader;
-use Symfony\Component\Translation\Translator;
 use Symfony\Component\Yaml\Yaml;
 
 class ConfigLoader
@@ -69,7 +76,7 @@ class ConfigLoader
             'telegram_bot_need_command_handler_log' => false,
             'telegram_bot_need_requests_log'        => false,
             'telegram_bot_need_responses_log'       => false,
-            'locale'                                => 'en-Us', // ru-Ru
+            'locale'                                => 'en_US', // ru_RU
         );
 
         $parameters = array_merge($parameters, $config['parameters']);
@@ -107,7 +114,8 @@ class ConfigLoader
         // setting translator
         $translator = $this->container->get('ducha.telegram-bot.translator');
         $translator->addLoader('xliff', new XliffFileLoader());
-        $pattern = '/^messages\.(ru|en)\.xliff$/';
+        $localesKeys = array_keys($locales);
+        $pattern = '/^messages\.('.implode('|', $localesKeys).')\.xliff$/';
         $dir = implode(DIRECTORY_SEPARATOR, array(__DIR__, 'Resources', 'translations'));
         foreach (Finder::create()->files()->in($dir) as $file){
             if ($file instanceof \SplFileInfo){
@@ -138,7 +146,7 @@ class ConfigLoader
         if ($this->container->hasParameter($parameter1)){
             $rootDir = $this->container->getParameter($parameter1);
             if (!file_exists($rootDir)){
-                throw new \LogicException(sprintf('You have logic exception in %s of %s : Directory %s specified in parameter %s must exist', __METHOD__, __FILE__, $rootDir, $parameter1));
+                throw new \LogicException(sprintf('You have logic exception in %s of %s : Directory "%s" specified in a "%s" parameter must exist', __METHOD__, __FILE__, $rootDir, $parameter1));
             }
         }else{
             $this->container->setParameter($parameter1, realpath($rootDir));

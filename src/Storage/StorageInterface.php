@@ -1,7 +1,6 @@
 <?php
-
-/*
- * This file is part of the ducha/telegram-bot package.
+/**
+ * This file is part of the TelegramBot package.
  *
  * (c) Andre Vlasov <areyouhappyihopeso@gmail.com>
  *
@@ -11,11 +10,6 @@
 
 namespace Ducha\TelegramBot\Storage;
 
-/**
- * StorageInterface.
- *
- * @author Andre Vlasov <areyouhappyihopeso@gmail.com>
- */
 interface StorageInterface
 {
     /**

@@ -1,8 +1,11 @@
 <?php
-/*
- * This command must run only in private chats
- * Create a poll
- * format: 1) /pollcreate 2) /pollcreate name
+/**
+ * This file is part of the TelegramBot package.
+ *
+ * (c) Andre Vlasov <areyouhappyihopeso@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Ducha\TelegramBot\Commands;

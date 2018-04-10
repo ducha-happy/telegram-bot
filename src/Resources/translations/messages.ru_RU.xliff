@@ -277,6 +277,11 @@
                 <target>Голосующих</target>
             </trans-unit>
 
+            <trans-unit id="whoami_command_description">
+                <source>whoami_command_description</source>
+                <target>Команда покажет вам ваш id.</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

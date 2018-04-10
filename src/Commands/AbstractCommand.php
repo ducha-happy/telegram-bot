@@ -210,19 +210,28 @@ abstract class AbstractCommand implements CommandInterface
     }
 
     /**
+     * @param string $commandName
+     * @param array $parameters
      * @return string
      */
-    public function getWarning()
+    public function getWarning($commandName = null, $parameters = array())
     {
+        if (empty($commandName)){
+            $commandName = static::getName();
+        }
+
         $arguments = '';
         $temp = class_uses($this);
         if (is_array($temp) && array_search(ArgumentsAwareTrait::class, $temp) !== false){
-            $arguments = (empty($this->arguments)?'':implode(' ', $this->arguments));
+            if (empty($parameters)){
+                $parameters = $this->arguments;
+            }
+            $arguments = (empty($parameters)?'':implode(' ', $parameters));
         }
 
         $text = $this->translator->trans('go_to_and_try_there', array(
             '%bot_name%' => '@' . $this->getBotName(),
-            '%command%' => static::getName() . ' ' . $arguments
+            '%command%' => $commandName . ' ' . $arguments
         ));
 
         return $text;

@@ -280,6 +280,11 @@
                 <target>Total of voting</target>
             </trans-unit>
 
+            <trans-unit id="whoami_command_description">
+                <source>whoami_command_description</source>
+                <target>This command will show you your private chat id.</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

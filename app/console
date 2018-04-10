@@ -1,0 +1,138 @@
+#!/usr/bin/env php
+<?php
+/**
+ * This file is part of the TelegramBot package.
+ *
+ * (c) Andre Vlasov <areyouhappyihopeso@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+use Ducha\TelegramBot\ConfigLoader;
+use Ducha\TelegramBot\Process;
+
+require_once 'autoload.php';
+
+$validArgs = array(
+    'status', 'stop', 'restart', 'start', 'help',
+);
+
+if (!isset($argv[1]) || !preg_match('/^('.implode('|', $validArgs).')$/', $argv[1])){
+    help($validArgs); exit;
+}
+
+$action = $argv[1];
+
+$configLoader = new ConfigLoader();
+
+$container = $configLoader->getContainer();
+$logDir = $container->getParameter('telegram_bot_log_dir');
+$file = $logDir . '/process';
+if (file_exists($file)){
+    $process = unserialize(file_get_contents($file));
+}else{
+    $command = 'php ' . __DIR__ . '/app.php';
+    $process = new Process($command);
+}
+
+/**
+ * @param Process $process
+ * @param $file
+ * @return bool
+ */
+function start($process, $file){
+    $started = false;
+    if (file_exists($file)){
+        echo 'The process already is running. Use `restart` or `stop` arguments.'; echo "\n";
+    }else{
+        if ($process->start()){
+            file_put_contents($file, serialize($process));
+            $started = true;
+            echo 'The process is starting now!'; echo "\n";
+        }else{
+            echo 'Can`t start the process'; echo "\n";
+        }
+    }
+
+    return $started;
+}
+
+/**
+ * @param Process $process
+ * @param $file
+ * @return bool
+ */
+function stop($process, $file){
+    $stopped = true;
+    $file2 = __DIR__ . '/logs/running';
+    if ($process->stop()){
+        unlink($file);
+        if (file_exists($file2)){
+            unlink($file2);
+        }
+        echo 'The process is stopped now!'; echo "\n";
+    }else{
+        echo 'Can`t stop process'; echo "\n";
+        $stopped = false;
+    }
+
+    return $stopped;
+}
+
+/**
+ * @param Process $process
+ * @return bool
+ */
+function status($process){
+    $started = false;
+    if ($process->status()){
+        echo 'The process is running'; echo "\n";
+        $started = true;
+    }else{
+        echo 'The process is not running'; echo "\n";
+        foreach (array('process', 'running') as $key){
+            $file = __DIR__ . '/logs/' . $key;
+            if (file_exists($file)){
+                unlink($file);
+            }
+        }
+    }
+
+    return $started;
+}
+
+function help($validArgs){
+    echo 'Valid arguments are ' . implode(', ', $validArgs);
+    echo "\n";
+}
+
+
+switch ($action){
+    case "status":
+        status($process);
+        break;
+    case "stop":
+        if (status($process)){
+            stop($process, $file);
+        }
+        break;
+    case "restart":
+        $canStart = true;
+        if ($process->status()){
+            $canStart = false;
+            if (stop($process, $file)){
+                $canStart = true;
+            }
+        }
+        if ($canStart){
+            start($process, $file);
+        }
+        break;
+    case "start":
+        start($process, $file);
+        break;
+    case "help":
+        help($validArgs);
+        break;
+}

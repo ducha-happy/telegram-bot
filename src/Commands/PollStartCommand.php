@@ -77,7 +77,7 @@ class PollStartCommand extends AbstractCommand
                 }
             }else{
                 $this->telegram->sendMessage($message->getChatId(),
-                    $this->translator->trans('can_not_find_any_poll') . $this->getWarning()
+                    $this->translator->trans('can_not_find_any_poll') . $this->getWarning(StartCommand::getName())
                 );
             }
         }

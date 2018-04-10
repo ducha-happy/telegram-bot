@@ -134,7 +134,9 @@ class TelegramBot implements ContainerAwareInterface
         if ($fl) {
             $this->setTelegram();
             $commandHandler = new CommandHandler($container, $this);
-            $this->telegram->sendMessage($this->telegramAdminChatId, date("d.m.Y H:i:s") . self::START_MESSAGE);
+            if (!empty($this->telegramAdminChatId)){
+                $this->telegram->sendMessage($this->telegramAdminChatId, date("d.m.Y H:i:s") . self::START_MESSAGE);
+            }
             $loopIndex = 0;
             while(true){
                 $updates = $this->telegram->pollUpdates($lastUpdateId, 60);
@@ -152,8 +154,14 @@ class TelegramBot implements ContainerAwareInterface
         }
     }
 
+    /**
+     * @return bool
+     */
     public function start()
     {
+        if (file_exists($this->fileOfProcess)){
+            echo "bot already is running!\n"; exit;
+        }
         // Start writing log-file
         $this->logger->info(self::START_MESSAGE);
 

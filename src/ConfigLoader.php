@@ -37,20 +37,31 @@ class ConfigLoader
      */
     protected $logger;
 
-    public function __construct()
+    /**
+     * ConfigLoader constructor.
+     * @param string|null $configFile
+     * @param string|null $servicesFile
+     */
+    public function __construct($configFile = null, $servicesFile = null)
     {
-        $this->setContainer();
+        $this->setContainer($configFile, $servicesFile);
         $this->setLogger();
     }
 
     /**
+     * @param string|null $configFile
+     * @param string|null $servicesFile
      * @throws \LogicException
      */
-    private function setContainer()
+    private function setContainer($configFile, $servicesFile)
     {
         $containerBuilder = new ContainerBuilder();
 
         $file = __DIR__ . '/../app/config/config.yml';
+        if (!empty($configFile)){
+            $file = $configFile;
+        }
+
         if (!file_exists($file)){
             throw new \LogicException(sprintf('Config file "%s" does not exists', $file));
         }
@@ -62,6 +73,7 @@ class ConfigLoader
 
         // default parameters
         $parameters = array(
+            'telegram_admin_chat_id'                => '',
             'telegram_bot_need_command_handler_log' => false,
             'telegram_bot_need_requests_log'        => false,
             'telegram_bot_need_responses_log'       => false,
@@ -89,7 +101,6 @@ class ConfigLoader
 
         // check locale and set it correctly with country code
         $locale = $containerBuilder->getParameter('locale');
-        var_dump($locale);
         if (preg_match('/^[a-z]{2}$/', $locale)){
             foreach ($resources as $resource){
                 $temp = explode('_', $resource['locale']);
@@ -101,6 +112,9 @@ class ConfigLoader
         }
 
         $file = __DIR__ . '/../app/config/services.yml';
+        if (!empty($servicesFile)){
+            $file = $servicesFile;
+        }
         $config = Yaml::parse(file_get_contents($file));
 
         $services = $config['services'];

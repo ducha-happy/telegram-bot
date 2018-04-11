@@ -164,7 +164,12 @@
 
             <trans-unit id="conducting_of_poll_was_canceled">
                 <source>conducting_of_poll_was_canceled</source>
-                <target>I am very sorry, but this conducting of poll ("%poll_id% - %poll_name%") was canceled by poll creator.</target>
+                <target>Sorry, this conducting of poll ("%poll_id% - %poll_name%") was canceled by poll creator.</target>
+            </trans-unit>
+
+            <trans-unit id="conducting_of_poll_was_canceled_by_admin">
+                <source>conducting_of_poll_was_canceled_by_admin</source>
+                <target>Sorry, this conducting of poll ("%poll_id% - %poll_name%") was canceled by admin.</target>
             </trans-unit>
 
             <trans-unit id="statistic_was_removed">
@@ -284,6 +289,33 @@
                 <source>whoami_command_description</source>
                 <target>This command will show you your private chat id.</target>
             </trans-unit>
+
+            <trans-unit id="select_uncompleted_statistic">
+                <source>select_uncompleted_statistic</source>
+                <target>Select uncompleted statistic</target>
+            </trans-unit>
+
+            <trans-unit id="select_completed_statistic">
+                <source>select_completed_statistic</source>
+                <target>Select completed statistic</target>
+            </trans-unit>
+
+            <trans-unit id="admin_uncompleted_show_stat_menu_caption">
+                <source>admin_uncompleted_show_stat_menu_caption</source>
+                <target>Uncompleted surveys</target>
+            </trans-unit>
+
+            <trans-unit id="admin_show_stat_menu_caption">
+                <source>admin_show_stat_menu_caption</source>
+                <target>Completed surveys</target>
+            </trans-unit>
+
+            <trans-unit id="admin_menu_caption">
+                <source>admin_menu_caption</source>
+                <target>Admin menu</target>
+            </trans-unit>
+
+
 
         </body>
     </file>

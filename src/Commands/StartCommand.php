@@ -221,6 +221,27 @@ class StartCommand extends AbstractCommand
     }
 
     /**
+     * @return InlineKeyboardMarkup
+     */
+    protected function getAdminMenuKeyboard()
+    {
+        $points = $this->getCallbackPoints();
+        $adminMenuPoint = $points['admin_menu'];
+        $adminShowStatMenuPoint = $points['admin_show_stat_menu'];
+        $adminUncompletedShowStatMenuPoint = $points['admin_uncompleted_show_stat_menu'];
+
+        $rows = array(
+            array(new InlineKeyboardButton($adminShowStatMenuPoint['caption'], '', $adminShowStatMenuPoint['callback_data'])),
+            array(new InlineKeyboardButton($adminUncompletedShowStatMenuPoint['caption'], '', $adminUncompletedShowStatMenuPoint['callback_data'])),
+            array(new InlineKeyboardButton($adminMenuPoint['caption'], '', $adminMenuPoint['callback_data'])),
+        );
+
+        $keyboard = new InlineKeyboardMarkup($rows);
+
+        return $keyboard;
+    }
+
+    /**
      * Get poll statistic
      * 
      * @param int $chatId
@@ -230,11 +251,12 @@ class StartCommand extends AbstractCommand
      */
     protected function pollShowStatAction($chatId, $pollId, $statChatId, $uncompleted = null)
     {
+        $adminChatId = $this->handler->getTelegramBot()->getTelegramAdminChatId();
         $poll = $this->pollManager->getPollById($pollId);
         $text = $this->translator->trans('can_not_find_the_statistic', array('%number%' => $pollId));
         if ($poll instanceof Poll){
             $userId = $poll->getUserId();
-            if ($userId == $chatId){
+            if ($userId == $chatId || $chatId == $adminChatId){
                 if ($uncompleted){
                     $text = $this->surveyStatManager->getStat($statChatId, $pollId);
                 }else{
@@ -246,15 +268,19 @@ class StartCommand extends AbstractCommand
         $points = $this->getCallbackPoints();
         $pollShowStatMenuPoint = $points['poll_show_stat_menu'];
 
-        $keyboard = $this->getAllPollsMenuKeyboard($chatId);
-        $rows = $keyboard->getInlineKeyboard();
-
-        array_unshift(
-            $rows,
-            array(new InlineKeyboardButton($pollShowStatMenuPoint['caption'], '', sprintf($pollShowStatMenuPoint['callback_data'], $pollId)))
-        );
-
-        $keyboard->setInlineKeyboard($rows);
+        if ($chatId == $adminChatId){
+            $keyboard = $this->getAdminMenuKeyboard();
+        }else{
+            $keyboard = $this->getAllPollsMenuKeyboard($chatId);
+            $rows = $keyboard->getInlineKeyboard();
+            array_unshift(
+                $rows,
+                array(
+                    new InlineKeyboardButton($pollShowStatMenuPoint['caption'], '', sprintf($pollShowStatMenuPoint['callback_data'], $pollId))
+                )
+            );
+            $keyboard->setInlineKeyboard($rows);
+        }
 
         $keyboard = json_encode($keyboard);
 
@@ -326,8 +352,10 @@ class StartCommand extends AbstractCommand
     protected function pollStatRemoveAction($chatId, $pollId, $statChatId)
     {
         $isRemove = false;
+        $adminChatId = $this->handler->getTelegramBot()->getTelegramAdminChatId();
         $poll = $this->pollManager->getPollById($pollId);
         $group = $this->groupManager->getGroup($statChatId);
+        $pollUserId = $poll->getUserId();
 
         $key = StorageKeysHolder::getCompletedSurveyKey($statChatId, $pollId);
         if ($this->storage->exists($key)){
@@ -343,7 +371,13 @@ class StartCommand extends AbstractCommand
             // send message to a chat with survey and remove all keyboards there
             $keyboard = new ReplyKeyboardRemove(true, false);
             $keyboard = json_encode($keyboard);
-            $text = $this->translator->trans('conducting_of_poll_was_canceled', array('%poll_id%' => $pollId, '%poll_name%' => $poll->getName()));
+            $text = $this->translator->trans(
+                implode('', array(
+                    'conducting_of_poll_was_canceled',
+                    ($pollUserId != $chatId && $adminChatId == $chatId)? '_by_admin' : ''
+                )),
+                array('%poll_id%' => $pollId, '%poll_name%' => $poll->getName())
+            );
             $this->telegram->sendMessage($statChatId, HtmlFormatter::bold($text), 'HTML', false, null, $keyboard);
         }
 
@@ -353,7 +387,12 @@ class StartCommand extends AbstractCommand
             $text = 'Ok. But nothing was removed.';
         }
 
-        $keyboard = $this->getAllPollsMenuKeyboard($chatId);
+        if ($pollUserId != $chatId && $adminChatId == $chatId){
+            $keyboard = $this->getAdminMenuKeyboard();
+        }else{
+            $keyboard = $this->getAllPollsMenuKeyboard($chatId);
+        }
+
         $keyboard = json_encode($keyboard);
 
         $this->sendResponse($chatId, $text, $keyboard);
@@ -363,25 +402,31 @@ class StartCommand extends AbstractCommand
      * @param array $lines
      * @param array $keys
      * @param array $parameters
+     * @param bool $admin
      * @return array
      */
-    protected function getPollShowStatMenuItems($lines, $keys, $parameters)
+    protected function getPollShowStatMenuItems($lines, $keys, $parameters, $admin = false)
     {
         $points = $this->getCallbackPoints();
         $pollStatRemovePointKey = 'poll_stat_remove_action';
         $pollStatRemovePoint = $points[$pollStatRemovePointKey];
-        $pollShowStatPoint = $points['poll_show_stat_action'];
+        //$pollShowStatPoint = $points['poll_show_stat_action'];
 
         foreach ($keys as $key){
             $temp = explode(".", $key);
             $pollId = array_pop($temp);
             $chatId = array_pop($temp);
             $group = $this->groupManager->getGroup($chatId);
+            $poll = $this->pollManager->getPollById($pollId);
             $showReply = implode('.', array_replace($parameters, array($parameters[0], $chatId, $pollId)));
             $removeReply = implode('.', array_replace($parameters, array($pollStatRemovePointKey, $chatId, $pollId)));
             $lines[] = array(
                 'show'   => array(
-                    'caption' => $pollShowStatPoint['caption'] . ' (' . $group->getTitle() . ')',
+                    'caption' => implode(' ', array(
+                        //$pollShowStatPoint['caption'],
+                        sprintf('(%s)', $group->getTitle()),
+                        $admin? sprintf('(%s, %s)', $poll->getId(), $poll->getName()) : ''
+                    )),
                     'reply' => $showReply,
                 ),
                 'remove' => array(
@@ -392,6 +437,85 @@ class StartCommand extends AbstractCommand
         }
 
         return $lines;
+    }
+
+    /**
+     * @param array $lines
+     * @param int $userId
+     * @return InlineKeyboardMarkup
+     */
+    protected function getAdminKeyboard($lines, $userId)
+    {
+        $points = $this->getCallbackPoints();
+        $adminMenuPoint = $points['admin_menu'];
+
+        $rows = array();
+        foreach ($lines as $item){
+            $rows[] = array(
+                new InlineKeyboardButton($item['show']['caption'], '', $item['show']['reply']),
+                new InlineKeyboardButton($item['remove']['caption'], '', $item['remove']['reply']),
+            );
+        }
+        $rows[] = array(
+            new InlineKeyboardButton($adminMenuPoint['caption'], '', sprintf($adminMenuPoint['callback_data'], $userId)),
+        );
+
+        $keyboard = new InlineKeyboardMarkup($rows);
+
+        return $keyboard;
+    }
+
+    /**
+     * Show Uncompleted Surveys
+     * @param  int $userId
+     * @return array
+     */
+    protected function getAdminUncompletedShowStatMenu($userId)
+    {
+        $points = $this->getCallbackPoints();
+        $pollShowStatUncompletedPoint = $points['poll_show_stat_action_uncompleted'];
+
+        $text = $this->translator->trans('select_uncompleted_statistic');
+        $text = HtmlFormatter::bold($text);
+
+        $pattern = sprintf(StorageKeysHolder::getNotCompletedSurveyPattern(), '*', '*');
+        $keys = $this->storage->keys($pattern);
+        $keys = PollSurveyStatManager::filterKeys($keys, $pattern);
+
+        $lines = array();
+        $parameters = explode('.', $pollShowStatUncompletedPoint['callback_data']);
+        $lines = $this->getPollShowStatMenuItems($lines, $keys, $parameters, true);
+
+        $keyboard = $this->getAdminKeyboard($lines, $userId);
+        $keyboard = json_encode($keyboard);
+
+        return array($text, $keyboard);
+    }
+
+    /**
+     * Show Completed Surveys
+     * @param  int $userId
+     * @return array
+     */
+    protected function getAdminShowStatMenu($userId)
+    {
+        $points = $this->getCallbackPoints();
+        $pollShowStatPoint = $points['poll_show_stat_action'];
+
+        $text = $this->translator->trans('select_completed_statistic');
+        $text = HtmlFormatter::bold($text);
+
+        $pattern = sprintf(StorageKeysHolder::getCompletedSurveyPattern(), '*', '*');
+        $keys = $this->storage->keys($pattern);
+
+        $lines = array();
+        $parameters = explode('.', $pollShowStatPoint['callback_data']);
+        $lines = $this->getPollShowStatMenuItems($lines, $keys, $parameters, true);
+
+        $keyboard = $this->getAdminKeyboard($lines, $userId);
+        $keyboard = json_encode($keyboard);
+
+        return array($text, $keyboard);
     }
 
     /**
@@ -488,11 +612,42 @@ class StartCommand extends AbstractCommand
      * @param int $chatId chatId is the same as userId
      * @return array
      */
+    protected function getAdminMenu($chatId)
+    {
+        $points = $this->getCallbackPoints();
+        $adminUncompletedShowStatMenuPoint = $points['admin_uncompleted_show_stat_menu'];
+        $adminShowStatMenuPoint = $points['admin_show_stat_menu'];
+        $mainMenuPoint = $points['main_menu'];
+
+        $text = $this->translator->trans('select_menu_point');
+        $rows = array(
+            array(
+                new InlineKeyboardButton($adminUncompletedShowStatMenuPoint['caption'], '', $adminUncompletedShowStatMenuPoint['callback_data'])
+            ),
+            array(
+                new InlineKeyboardButton($adminShowStatMenuPoint['caption'], '', $adminShowStatMenuPoint['callback_data'])
+            ),
+            array(
+                new InlineKeyboardButton($mainMenuPoint['caption'], '', $mainMenuPoint['callback_data'])
+            )
+        );
+
+        $keyboard = new InlineKeyboardMarkup($rows);
+        $keyboard = json_encode($keyboard);
+
+        return array($text, $keyboard);
+    }
+
+    /**
+     * @param int $chatId chatId is the same as userId
+     * @return array
+     */
     protected function getMainMenu($chatId)
     {
         $points = $this->getCallbackPoints();
         $allPollsPoint = $points['all_polls_menu'];
         $createPollPoint = $points['poll_create_action'];
+        $adminMenuPoint = $points['admin_menu'];
 
         $text = $this->translator->trans('select_menu_point');
         $rows = array(
@@ -503,6 +658,13 @@ class StartCommand extends AbstractCommand
                 new InlineKeyboardButton($createPollPoint['caption'], '', $createPollPoint['callback_data'])
             )
         );
+        // for admin only
+        $adminChatId = $this->handler->getTelegramBot()->getTelegramAdminChatId();
+        if ($adminChatId == $chatId){
+            $rows[] = array(
+                new InlineKeyboardButton($adminMenuPoint['caption'], '', $adminMenuPoint['callback_data']) //chatId is the same as userId
+            );
+        }
 
         $keyboard = new InlineKeyboardMarkup($rows);
         $keyboard = json_encode($keyboard);
@@ -529,6 +691,9 @@ class StartCommand extends AbstractCommand
 
         switch($key){
             case 'main_menu':
+            case 'admin_menu':
+            case 'admin_show_stat_menu':
+            case 'admin_uncompleted_show_stat_menu':
             case 'all_polls_menu':
                 $parameters = array($chatId);
                 break;
@@ -588,6 +753,21 @@ class StartCommand extends AbstractCommand
                 'caption' => $this->translator->trans('main_menu_caption'),
                 'pattern' => '|^main_menu$|',
                 'callback_data' => 'main_menu',
+            ),
+            'admin_menu' => array(
+                'caption' => $this->translator->trans('admin_menu_caption'),
+                'pattern' => '|^admin_menu$|',
+                'callback_data' => 'admin_menu',
+            ),
+            'admin_uncompleted_show_stat_menu' => array(
+                'caption' => $this->translator->trans('admin_uncompleted_show_stat_menu_caption'),
+                'pattern' => '|^admin_uncompleted_show_stat_menu$|',
+                'callback_data' => 'admin_uncompleted_show_stat_menu',
+            ),
+            'admin_show_stat_menu' => array(
+                'caption' => $this->translator->trans('admin_show_stat_menu_caption'),
+                'pattern' => '|^admin_show_stat_menu$|',
+                'callback_data' => 'admin_show_stat_menu',
             ),
             'all_polls_menu' => array(
                 'caption' => $this->translator->trans('all_polls_menu_caption'),

@@ -118,16 +118,10 @@ switch ($action){
         }
         break;
     case "restart":
-        $canStart = true;
-        if ($process->status()){
-            $canStart = false;
-            if (stop($process, $file)){
-                $canStart = true;
-            }
+        if (status($process)){
+            stop($process, $file);
         }
-        if ($canStart){
-            start($process, $file);
-        }
+        start($process, $file);
         break;
     case "start":
         start($process, $file);

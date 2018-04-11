@@ -156,7 +156,12 @@
 
             <trans-unit id="conducting_of_poll_was_canceled">
                 <source>conducting_of_poll_was_canceled</source>
-                <target>Сожалею, но проведение данного опроса ("%poll_id% - %poll_name%") было отменено его создателем.</target>
+                <target>Сожалею, проведение данного опроса ("%poll_id% - %poll_name%") было отменено его создателем.</target>
+            </trans-unit>
+
+            <trans-unit id="conducting_of_poll_was_canceled_by_admin">
+                <source>conducting_of_poll_was_canceled_by_admin</source>
+                <target>Сожалею, проведение данного опроса ("%poll_id% - %poll_name%") было отменено администратором.</target>
             </trans-unit>
 
             <trans-unit id="statistic_was_removed">
@@ -280,6 +285,31 @@
             <trans-unit id="whoami_command_description">
                 <source>whoami_command_description</source>
                 <target>Команда покажет вам ваш id.</target>
+            </trans-unit>
+
+            <trans-unit id="select_uncompleted_statistic">
+                <source>select_uncompleted_statistic</source>
+                <target>Выберите статистику</target>
+            </trans-unit>
+
+            <trans-unit id="select_completed_statistic">
+                <source>select_completed_statistic</source>
+                <target>Выберите статистику</target>
+            </trans-unit>
+
+            <trans-unit id="admin_uncompleted_show_stat_menu_caption">
+                <source>admin_uncompleted_show_stat_menu_caption</source>
+                <target>Опросы Незавершённые</target>
+            </trans-unit>
+
+            <trans-unit id="admin_show_stat_menu_caption">
+                <source>admin_show_stat_menu_caption</source>
+                <target>Опросы Завершённые</target>
+            </trans-unit>
+
+            <trans-unit id="admin_menu_caption">
+                <source>admin_menu_caption</source>
+                <target>Администратор</target>
             </trans-unit>
 
         </body>

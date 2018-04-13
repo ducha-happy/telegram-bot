@@ -250,6 +250,22 @@ abstract class AbstractCommand implements CommandInterface
         return $str == static::getName() || $str == static::getName() . '@' . $this->getBotName();
     }
 
+    /**
+     * @param string $className
+     * @return mixed
+     * @throws \LogicException
+     */
+    public static function getInstance($className)
+    {
+        foreach (self::$_instances as $instance){
+            if ($instance instanceof $className){
+                return $instance;
+            }
+        }
+
+        throw new \LogicException(sprintf('Instance of class "%s" is not exists', $className));
+    }
+
     public static function __callStatic($method, $args)
     {
         if ($method == 'getTranslator'){

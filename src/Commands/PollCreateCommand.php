@@ -16,6 +16,7 @@ use Ducha\TelegramBot\Poll\Poll;
 use Ducha\TelegramBot\Poll\PollQuestion;
 use Ducha\TelegramBot\Redis\PollManager;
 use Ducha\TelegramBot\Storage\StorageKeysHolder;
+use Ducha\TelegramBot\Translation\Translator;
 use Ducha\TelegramBot\Types\InlineKeyboardButton;
 use Ducha\TelegramBot\Types\InlineKeyboardMarkup;
 use Ducha\TelegramBot\Types\Message;
@@ -58,7 +59,7 @@ class PollCreateCommand extends AbstractCommand
      */
     public static function getDescription()
     {
-        return static::getTranslator()->trans('poll_create_command_description', array(
+        return static::getInstance(Translator::class)->trans('poll_create_command_description', array(
             '%format1%' => self::getName(),
             '%format2%' => sprintf('%s name', self::getName()),
         ));
@@ -88,7 +89,7 @@ class PollCreateCommand extends AbstractCommand
     {
         $poll['state'] = self::STATE_NAME;
         $this->savePoll($chatId, $poll);
-        $this->telegram->sendMessage($chatId, 'Введите имя опроса');
+        $this->telegram->sendMessage($chatId, $this->translator->trans('enter_poll_name'));
     }
 
     /**
@@ -99,7 +100,7 @@ class PollCreateCommand extends AbstractCommand
     {
         $poll['state'] = self::STATE_QUESTION;
         $this->savePoll($chatId, $poll);
-        $this->telegram->sendMessage($chatId, 'Введите вопрос');
+        $this->telegram->sendMessage($chatId, $this->translator->trans('enter_question'));
     }
 
     /**
@@ -111,7 +112,7 @@ class PollCreateCommand extends AbstractCommand
         $poll['state'] = self::STATE_REPLY;
         $this->savePoll($chatId, $poll);
         $lines = array(
-            HtmlFormatter::bold('Введите варианты ответа через запятую на вопрос:'),
+            HtmlFormatter::bold($this->translator->trans('enter_response_options')),
             $poll['questions'][count($poll['questions'])-1]['title']
         );
         $text = implode("\n", $lines);
@@ -210,6 +211,32 @@ class PollCreateCommand extends AbstractCommand
     }
 
     /**
+     * @param string $replies
+     * @return bool
+     */
+    protected function repliesIsValid($replies)
+    {
+        $replies = explode(',', $replies);
+        foreach ($replies as $reply){
+            $reply = trim($reply);
+            if (!$this->messageTextIsValid($reply)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $str
+     * @return bool
+     */
+    protected function messageTextIsValid($str)
+    {
+        return preg_match('|^/|', $str)? false : true;
+    }
+
+    /**
      * @param array $data
      */
     public function execute(array $data)
@@ -223,25 +250,53 @@ class PollCreateCommand extends AbstractCommand
                 switch ($poll['state']){
                     case self::STATE_NAME:
                         $pollName = $message->getText();
-                        if ($this->validatePollName($from['id'], $pollName, $chatId) == true){
-                            $poll['name'] = $pollName;
-                            $this->askQuestion($chatId, $poll);
+                        if ($this->messageTextIsValid($pollName)){
+                            if ($this->validatePollName($from['id'], $pollName, $chatId) == true){
+                                $poll['name'] = $pollName;
+                                $this->askQuestion($chatId, $poll);
+                            }
+                        }else{
+                            $this->telegram->sendMessage($chatId,
+                                implode("\n", array(
+                                    $this->translator->transChoice('uncorrected_response', 0),
+                                    $this->translator->trans('enter_poll_name'),
+                                ))
+                            );
                         }
                         break;
                     case self::STATE_QUESTION:
-                        $poll['questions'][] = array(
-                            'title' => $message->getText(),
-                            'replies' => array()
-                        );
-                        $this->askReply($chatId, $poll);
+                        $text = $message->getText();
+                        if ($this->messageTextIsValid($text)){
+                            $poll['questions'][] = array(
+                                'title' => $text,
+                                'replies' => array()
+                            );
+                            $this->askReply($chatId, $poll);
+                        }else{
+                            $this->telegram->sendMessage($chatId,
+                                implode("\n", array(
+                                    $this->translator->transChoice('uncorrected_response', 1),
+                                    $this->translator->trans('enter_question'),
+                                ))
+                            );
+                        }
                         break;
                     case self::STATE_REPLY:
                         $replies = $message->getText();
-                        $replies = explode(',', $replies);
-                        foreach ($replies as $reply){
-                            $poll['questions'][count($poll['questions'])-1]['replies'][] = trim($reply);
+                        if ($this->repliesIsValid($replies)){
+                            $replies = explode(',', $replies);
+                            foreach ($replies as $reply){
+                                $poll['questions'][count($poll['questions'])-1]['replies'][] = trim($reply);
+                            }
+                            $this->makePause($chatId, $poll);
+                        }else{
+                            $this->telegram->sendMessage($chatId,
+                                implode("\n", array(
+                                    $this->translator->transChoice('uncorrected_response', 2),
+                                    $this->translator->trans('enter_response_options')
+                                ))
+                            );
                         }
-                        $this->makePause($chatId, $poll);
                         break;
                 }
             }else{
@@ -280,22 +335,26 @@ class PollCreateCommand extends AbstractCommand
         if ($this->hasMessage($data)){
             $message = $this->getMessage($data);
             $text = $message->getText();
-            $temp = $this->combOut($text);
+            $command = '';
 
-            if (!empty($temp)){
-                if (count($temp) > 1){
-                    $args = $temp; array_shift($args);
-                    $this->setArguments($args);
+            if (preg_match('|^/|', $text)){
+                $temp = $this->combOut($text);
+                if (!empty($temp)){
+                    if (count($temp) > 1){
+                        $args = $temp; array_shift($args);
+                        $this->setArguments($args);
+                    }
                 }
+                $command = $temp[0];
+            }
 
-                if ($this->stringIsCommand($temp[0]) && $this->isChatTypeAvailable($message->getChatType()) == false){
-                    $this->telegram->sendMessage($message->getChatId(), $this->getWarning());
-                    return false;
-                }
+            if ($this->stringIsCommand($command) && $this->isChatTypeAvailable($message->getChatType()) == false){
+                $this->telegram->sendMessage($message->getChatId(), $this->getWarning());
+                return false;
+            }
 
-                if ($this->stringIsCommand($temp[0]) || $this->hasPoll($message->getChatId())){
-                    return true;
-                }
+            if ($this->stringIsCommand($command) || $this->hasPoll($message->getChatId())){
+                return true;
             }
         }
 
@@ -367,7 +426,7 @@ class PollCreateCommand extends AbstractCommand
             'questions' => array()
         );
 
-        if (isset($this->arguments[0])){           
+        if (isset($this->arguments[0])){
             $name = $this->arguments[0];
             if ($this->validatePollName($from['id'], $name, $chatId) != false){
                 $poll['name'] = $name;

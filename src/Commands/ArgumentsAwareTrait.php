@@ -25,4 +25,12 @@ trait ArgumentsAwareTrait {
     {
         $this->arguments = $arguments;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getArguments()
+    {
+        return $this->arguments;
+    }
 }

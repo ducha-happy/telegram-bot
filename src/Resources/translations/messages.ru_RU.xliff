@@ -312,6 +312,26 @@
                 <target>Администратор</target>
             </trans-unit>
 
+            <trans-unit id="enter_poll_name">
+                <source>enter_poll_name</source>
+                <target>Введите имя опроса</target>
+            </trans-unit>
+
+            <trans-unit id="enter_question">
+                <source>enter_question</source>
+                <target>Введите вопрос</target>
+            </trans-unit>
+
+            <trans-unit id="enter_response_options">
+                <source>enter_response_options</source>
+                <target>Введите варианты ответа через запятую на вопрос:</target>
+            </trans-unit>
+
+            <trans-unit id="uncorrected_response">
+                <source>uncorrected_response</source>
+                <target>{0}Имя опроса не должно начинаться с символа «/».|{1}Вопрос не должен начинаться с символа «/».|{2}Ответ не должен начинаться с символа «/».</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

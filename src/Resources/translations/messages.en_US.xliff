@@ -315,6 +315,26 @@
                 <target>Admin menu</target>
             </trans-unit>
 
+            <trans-unit id="enter_poll_name">
+                <source>enter_poll_name</source>
+                <target>Enter poll name</target>
+            </trans-unit>
+
+            <trans-unit id="enter_question">
+                <source>enter_question</source>
+                <target>Enter question</target>
+            </trans-unit>
+
+            <trans-unit id="enter_response_options">
+                <source>enter_response_options</source>
+                <target>Enter the response options separated by a comma to the question:</target>
+            </trans-unit>
+
+            <trans-unit id="uncorrected_response">
+                <source>uncorrected_response</source>
+                <target>{0}Poll name must not start from the "/" simbol.|{1}Question must not start from the "/" simbol.|{2}Reply must not start from the "/" simbol.</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

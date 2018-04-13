@@ -204,22 +204,22 @@
 
             <trans-unit id="poll_show_stat_menu_caption">
                 <source>poll_show_stat_menu_caption</source>
-                <target>Poll Show Stat Menu</target>
+                <target>Statistic Menu</target>
             </trans-unit>
 
             <trans-unit id="poll_create_action_caption">
                 <source>poll_create_action_caption</source>
-                <target>Poll Create</target>
+                <target>Create Poll</target>
             </trans-unit>
 
             <trans-unit id="poll_remove_action_caption">
                 <source>poll_remove_action_caption</source>
-                <target>Poll Remove</target>
+                <target>Remove Poll</target>
             </trans-unit>
 
             <trans-unit id="poll_show_action_caption">
                 <source>poll_show_action_caption</source>
-                <target>Poll Show</target>
+                <target>Show Poll</target>
             </trans-unit>
 
             <trans-unit id="poll_show_stat_action_caption">
@@ -234,7 +234,7 @@
 
             <trans-unit id="poll_stat_remove_action_caption">
                 <source>poll_stat_remove_action_caption</source>
-                <target>Statistic Remove</target>
+                <target>Remove Statistic</target>
             </trans-unit>
 
             <trans-unit id="stop_command_description">
@@ -302,20 +302,18 @@
 
             <trans-unit id="admin_uncompleted_show_stat_menu_caption">
                 <source>admin_uncompleted_show_stat_menu_caption</source>
-                <target>Uncompleted surveys</target>
+                <target>Surveys - Uncompleted</target>
             </trans-unit>
 
             <trans-unit id="admin_show_stat_menu_caption">
                 <source>admin_show_stat_menu_caption</source>
-                <target>Completed surveys</target>
+                <target>Surveys - Completed</target>
             </trans-unit>
 
             <trans-unit id="admin_menu_caption">
                 <source>admin_menu_caption</source>
                 <target>Admin menu</target>
             </trans-unit>
-
-
 
         </body>
     </file>

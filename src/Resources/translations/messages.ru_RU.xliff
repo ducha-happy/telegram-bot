@@ -299,12 +299,12 @@
 
             <trans-unit id="admin_uncompleted_show_stat_menu_caption">
                 <source>admin_uncompleted_show_stat_menu_caption</source>
-                <target>Опросы Незавершённые</target>
+                <target>Опросы - Незавершённые</target>
             </trans-unit>
 
             <trans-unit id="admin_show_stat_menu_caption">
                 <source>admin_show_stat_menu_caption</source>
-                <target>Опросы Завершённые</target>
+                <target>Опросы - Завершённые</target>
             </trans-unit>
 
             <trans-unit id="admin_menu_caption">

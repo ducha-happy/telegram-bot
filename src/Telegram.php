@@ -33,6 +33,18 @@ class Telegram
      * @var string $responsesLogFile
      */
     protected $responsesLogFile;
+    /**
+     * @var bool $useCurl
+     */
+    protected $useCurl = false;
+    /**
+     * @var string $curlProxy
+     */
+    protected $curlProxy;
+    /**
+     * @var bool $curlProxySocks5
+     */
+    protected $curlProxySocks5 = false;
 
     /**
      * @param mixed $requestsLogFile
@@ -152,6 +164,29 @@ class Telegram
         return $this->sendRequest('sendLocation', $params);
     }
 
+    private function getCurlResponse($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        if (!empty($this->curlProxy)){
+            curl_setopt($ch, CURLOPT_PROXY, $this->curlProxy);
+            if ($this->curlProxySocks5 == true){
+                curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+            }
+        }
+
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); #0
+
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
     /**
      * @param $method
      * @param $params
@@ -164,7 +199,13 @@ class Telegram
                 file_put_contents($this->requestsLogFile, var_export($this->baseURL . $method . '?' . http_build_query($params), true) . "\n\n", FILE_APPEND);
             }
 
-            $content = @file_get_contents($this->baseURL . $method . '?' . http_build_query($params));
+            $url = $this->baseURL . $method . '?' . http_build_query($params);
+
+            if ($this->useCurl){
+                $content = $this->getCurlResponse($url);
+            }else{
+                $content = @file_get_contents($url);
+            }
 
             if ($content !== false){
                 $content = self::jsonValidate($content, true);
@@ -274,6 +315,46 @@ class Telegram
     public function setMode($mode)
     {
         $this->mode = $mode;
+    }
+
+    /**
+     * @param bool $useCurl
+     */
+    public function useCurl(bool $useCurl)
+    {
+        $this->useCurl = $useCurl;
+    }
+
+    /**
+     * @param string $curlProxy
+     */
+    public function setCurlProxy(string $curlProxy)
+    {
+        $this->curlProxy = $curlProxy;
+    }
+
+    /**
+     * @param bool $curlProxySocks5
+     */
+    public function setCurlProxySocks5(bool $curlProxySocks5)
+    {
+        $this->curlProxySocks5 = $curlProxySocks5;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCurlProxy()
+    {
+        return $this->curlProxy;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCurlProxySocks5(): bool
+    {
+        return $this->curlProxySocks5;
     }
 }
 

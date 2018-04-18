@@ -92,12 +92,22 @@ class TelegramBot implements ContainerAwareInterface
      */
     public function setTelegram()
     {
-        $this->telegramAdminChatId = $this->getContainer()->getParameter('telegram_admin_chat_id');
-        $this->telegramBotToken = $this->getContainer()->getParameter('telegram_bot_token');
+        $container = $this->getContainer();
+        $this->telegramAdminChatId = $container->getParameter('telegram_admin_chat_id');
+        $this->telegramBotToken = $container->getParameter('telegram_bot_token');
         $this->telegram = new Telegram($this->telegramBotToken);
+        if ($container->hasParameter('use_curl')){
+            $this->telegram->useCurl(true);
+            if ($container->hasParameter('curl_proxy')){
+                $this->telegram->setCurlProxy($container->getParameter('curl_proxy'));
+                if ($container->hasParameter('curl_proxy_socks5')){
+                    $this->telegram->setCurlProxySocks5($container->getParameter('curl_proxy_socks5'));
+                }
+            }
+        }
 
-        $needResponsesLog = $this->getContainer()->getParameter('telegram_bot_need_responses_log');
-        $needRequestsLog = $this->getContainer()->getParameter('telegram_bot_need_requests_log');
+        $needResponsesLog = $container->getParameter('telegram_bot_need_responses_log');
+        $needRequestsLog = $container->getParameter('telegram_bot_need_requests_log');
         if ($needResponsesLog){
             $this->telegram->setResponsesLogFile($this->getLogDir() . '/responses.log');
         }

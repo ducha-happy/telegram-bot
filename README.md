@@ -88,7 +88,19 @@ $ app/console restart
 ``` bash
 $ app/console stop
 ```
-    9) To check, that is your bot is running, use following
+    9) To test your config file on the ability to work, use
+    
+``` bash
+$ app/console test
+```
+
+    10) To check your proxies from your proxy list (app/config/proxies) , use
+    
+``` bash
+$ app/console check
+```
+    
+    11) To check, that is your bot is running, use following
     
 ``` bash
 $ app/console status

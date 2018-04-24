@@ -9,3 +9,6 @@ parameters:
     telegram_bot_need_requests_log :  false
     telegram_bot_need_responses_log : false
     locale : en
+
+    proxy : 'user:password@server:port'
+    proxy_socks5 : true

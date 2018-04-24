@@ -34,17 +34,13 @@ class Telegram
      */
     protected $responsesLogFile;
     /**
-     * @var bool $useCurl
+     * @var string $proxy
      */
-    protected $useCurl = false;
+    protected $proxy;
     /**
-     * @var string $curlProxy
+     * @var bool $proxySocks5
      */
-    protected $curlProxy;
-    /**
-     * @var bool $curlProxySocks5
-     */
-    protected $curlProxySocks5 = false;
+    protected $proxySocks5 = false;
 
     /**
      * @param mixed $requestsLogFile
@@ -145,6 +141,40 @@ class Telegram
     }
 
     /**
+     * Send Photo.
+     *
+     * @link https://core.telegram.org/bots/api#sendphoto
+     *
+     * @param int $chat_id
+     * Required. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+     *
+     * @param \CURLFile|string $photo
+     * Required. Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended),
+     * pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. More info on
+     * @link https://core.telegram.org/bots/api#sending-files
+     * for example:
+     * $photo = new \CURLFile(pathToFile);
+     * $photo->setMimeType('image/png');
+     * $photo->setPostFilename('photo');
+     *
+     * @param string $caption
+     * Optional. Photo caption (may also be used when resending photos by file_id), 0-200 characters
+     *
+     * @param string $parse_mode
+     * @param bool $disable_notification
+     * @param int $reply_to_message_id
+     * @param ReplyKeyboardMarkup|InlineKeyboardMarkup $reply_markup
+     *
+     * @return bool|mixed
+     */
+    public function sendPhoto($chat_id, $photo, $caption = null, $parse_mode = 'HTML', $disable_notification = false, $reply_to_message_id = null, $reply_markup = null)
+    {
+        $params = compact('chat_id', 'photo', 'caption', 'parse_mode', 'disable_notification', 'reply_to_message_id', 'reply_markup');
+
+        return $this->sendRequest('sendPhoto', $params);
+    }
+
+    /**
      * Send Location.
      *
      * @link https://core.telegram.org/bots/api#sendlocation
@@ -164,20 +194,32 @@ class Telegram
         return $this->sendRequest('sendLocation', $params);
     }
 
-    private function getCurlResponse($url)
+    private function getResponse($method, $params)
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        if (!empty($this->curlProxy)){
-            curl_setopt($ch, CURLOPT_PROXY, $this->curlProxy);
-            if ($this->curlProxySocks5 == true){
+        if (!empty($this->proxy)){
+            curl_setopt($ch, CURLOPT_PROXY, $this->proxy);
+            if ($this->proxySocks5 == true){
                 curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
             }
         }
 
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); #0
 
+        $url = $this->baseURL . $method;
+
+        if (array_search($method, array('sendPhoto', 'sendVideo')) !== false){
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+        }else{
+            if (!empty($params)){
+                $url .= '?' . http_build_query($params);
+            }
+        }
+
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
 
@@ -195,17 +237,12 @@ class Telegram
     private function sendRequest($method, $params)
     {
         if ($this->mode == 'prod'){
+
             if (!empty($this->requestsLogFile)){
                 file_put_contents($this->requestsLogFile, var_export($this->baseURL . $method . '?' . http_build_query($params), true) . "\n\n", FILE_APPEND);
             }
 
-            $url = $this->baseURL . $method . '?' . http_build_query($params);
-
-            if ($this->useCurl){
-                $content = $this->getCurlResponse($url);
-            }else{
-                $content = @file_get_contents($url);
-            }
+            $content = $this->getResponse($method, $params);
 
             if ($content !== false){
                 $content = self::jsonValidate($content, true);
@@ -318,43 +355,35 @@ class Telegram
     }
 
     /**
-     * @param bool $useCurl
+     * @param string $proxy
      */
-    public function useCurl(bool $useCurl)
+    public function setProxy(string $proxy)
     {
-        $this->useCurl = $useCurl;
+        $this->proxy = $proxy;
     }
 
     /**
-     * @param string $curlProxy
+     * @param bool $proxySocks5
      */
-    public function setCurlProxy(string $curlProxy)
+    public function setProxySocks5(bool $proxySocks5)
     {
-        $this->curlProxy = $curlProxy;
-    }
-
-    /**
-     * @param bool $curlProxySocks5
-     */
-    public function setCurlProxySocks5(bool $curlProxySocks5)
-    {
-        $this->curlProxySocks5 = $curlProxySocks5;
+        $this->proxySocks5 = $proxySocks5;
     }
 
     /**
      * @return string|null
      */
-    public function getCurlProxy()
+    public function getProxy()
     {
-        return $this->curlProxy;
+        return $this->proxy;
     }
 
     /**
      * @return bool
      */
-    public function isCurlProxySocks5(): bool
+    public function isProxySocks5(): bool
     {
-        return $this->curlProxySocks5;
+        return $this->proxySocks5;
     }
 }
 

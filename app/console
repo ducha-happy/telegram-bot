@@ -114,29 +114,34 @@ function help($validArgs){
 /**
  * Execute getMe method and show result
  * @param Container $container
+ * @param boolean $silent
+ * @return boolean
  */
-function test(Container $container){
+function test(Container $container, $silent = false){
     $telegram = new Telegram($container->getParameter('telegram_bot_token'));
-    if ($container->hasParameter('use_curl')){
-        $telegram->useCurl(true);
-        if ($container->hasParameter('curl_proxy')){
-            $telegram->setCurlProxy($container->getParameter('curl_proxy'));
-            if ($container->hasParameter('curl_proxy_socks5')){
-                $telegram->setCurlProxySocks5($container->getParameter('curl_proxy_socks5'));
-            }
+    
+    if ($container->hasParameter('proxy')){
+        $telegram->setProxy($container->getParameter('proxy'));
+        if ($container->hasParameter('proxy_socks5')){
+            $telegram->setProxySocks5($container->getParameter('proxy_socks5'));
         }
     }
+    
     $temp = $telegram->getMe();
     if ($temp == false){
         $link = 'Look at https://t.me/socks5_bot';
-        if (empty($telegram->getCurlProxy()) || $telegram->isCurlProxySocks5() == false){
+        if (empty($telegram->getProxy()) || $telegram->isProxySocks5() == false){
             echo join(" ", ["Try socks5 proxy.", $link, "\n"]);
         }else{
             echo join(" ", ["Try other socks5 proxy.", $link, "\n"]);
         }
     }else{
-        var_export($temp); echo "\n";
+        if ($silent == false){
+            var_export($temp); echo "\n";
+        }
     }
+
+    return (boolean) $temp;
 }
 /**
  * Check proxies from proxy list file
@@ -144,12 +149,11 @@ function test(Container $container){
  */
 function check(Container $container){
     $telegram = new Telegram($container->getParameter('telegram_bot_token'));
-    $telegram->useCurl(true);
-    $telegram->setCurlProxySocks5(true);
+    $telegram->setProxySocks5(true);
 
     $file = 'app/config/proxies';
     if (!file_exists($file)){
-        echo sprintf("file %s doesnt exists \n", $file);
+        echo sprintf("file %s does not exists \n", $file);
         exit();
     }
 
@@ -160,7 +164,7 @@ function check(Container $container){
         }
         $temp = explode("#", $proxy);
         $proxy = trim($temp[0]);
-        $telegram->setCurlProxy($proxy);
+        $telegram->setProxy($proxy);
         $temp = $telegram->getMe();
         if ($temp == false){
             echo $proxy . ' is bad. '; echo "\n";
@@ -184,10 +188,14 @@ switch ($action){
         if (status($process)){
             stop($process, $file);
         }
-        start($process, $file);
+        if (test($container, true)){
+            start($process, $file);
+        }
         break;
     case "start":
-        start($process, $file);
+        if (test($container, true)){
+            start($process, $file);
+        }
         break;
     case "help":
         help($validArgs);

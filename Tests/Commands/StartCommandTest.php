@@ -20,6 +20,10 @@ class StartCommandTest extends AbstractCommandTest
     {
         $this->telegram->setMode('prod');
         $response = $this->telegram->getMe();
+        if (!is_array($response)){
+            $this->markTestSkipped(sprintf('PHPUnit skip "%s" because Telegram->getMe response is not correct!', __METHOD__));
+        }
+
         $botName1 = ''; $botId1 = '';
         if (isset($response['result'])){
             $botName1 = $response['result']['username'];

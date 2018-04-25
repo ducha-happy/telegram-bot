@@ -10,6 +10,7 @@
 
 namespace Ducha\TelegramBot\Tests\Commands;
 
+use Ducha\TelegramBot\Commands\KillBotCommand;
 use Ducha\TelegramBot\Tests\TelegramData;
 
 class KillBotCommandTest extends AbstractCommandTest
@@ -31,10 +32,12 @@ class KillBotCommandTest extends AbstractCommandTest
             'For a private not admin chat the "isApplicable" method must return "false"!'
         );
 
-        $chat['id'] = TelegramData::PRIVATE_ADMIN_CHAT_ID;
+        $chat['id'] = TelegramData::getAdminChatId();
         $chat['type'] = 'private';
         $this->assertTrue($this->command->isApplicable($data),
             'For a private admin chat the "isApplicable" method must return "true"!'
         );
+
+        $this->assertInstanceOf(KillBotCommand::class, $this->command, sprintf('command must be instance of %s', KillBotCommand::class));
     }
 }

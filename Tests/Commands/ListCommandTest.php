@@ -31,7 +31,7 @@ class ListCommandTest extends AbstractCommandTest
             'For a private not admin chat the "isApplicable" method must return "true"!'
         );
 
-        $chat['id'] = TelegramData::PRIVATE_ADMIN_CHAT_ID;
+        $chat['id'] = TelegramData::getAdminChatId();
         $chat['type'] = 'private';
         $this->assertTrue($this->command->isApplicable($data),
             'For a private admin chat the "isApplicable" method must return "true"!'

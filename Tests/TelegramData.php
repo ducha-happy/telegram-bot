@@ -138,4 +138,23 @@ final class TelegramData
                     ),
             ),
     );
+
+    /**
+     * @return bool|string
+     */
+    public static function getAdminChatId()
+    {
+        $id = false;
+        $config = file(__DIR__ . '/../app/config/config.yml');
+        foreach ($config as $line){
+            $line = trim($line);
+            if (preg_match('|^telegram_admin_chat_id|', $line)){
+                $temp = explode(':', $line);
+                $id = str_replace('"', '', trim($temp[1]));
+                break;
+            }
+        }
+
+        return $id;
+    }
 }

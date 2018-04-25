@@ -4,7 +4,7 @@ The bot was created with an eye to facilitate the collection of Uma`s team for v
 
 ## Description
 Telegram bot which can create polls and conduct them in chats!
-So you can create a poll with /pollcreate and start that poll in any group where i live with **/pollstart name** or **/pollstart number**.
+So you can create a poll with **/pollcreate** and start that poll in any group where i live with **/pollstart name** or **/pollstart number**.
 You can find all your polls and statistic for them with help of the command **/start**.
 
 ## Commands
@@ -44,7 +44,7 @@ This package is working with redis so you need to have "redis-server" started.
 1) Run the following commands:
        
 ``` bash
-$ git clone https://github.com/ducha/telegram-bot.git
+$ git clone https://github.com/ducha-happy/telegram-bot.git
 $ cd telegram-bot
 $ rm -rf .git
 ```

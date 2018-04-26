@@ -10,6 +10,7 @@
 
 namespace Ducha\TelegramBot;
 
+use Ducha\TelegramBot\Storage\StorageKeysHolder;
 use Monolog\Logger;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -123,40 +124,59 @@ class TelegramBot implements ContainerAwareInterface
         return $this->getContainer()->getParameter('telegram_bot_log_dir');
     }
 
-    public function execute()
+    protected function getStorage()
     {
         $container = $this->getContainer();
-        $logDir = $this->getLogDir();
+        $storage = $container->get('ducha.telegram-bot.storage');
 
-        $fileOfLastUpdate = $logDir . '/LastUpdateId.log';
-        $this->fileOfProcess = $logDir . '/running';
+        return $storage;
+    }
 
-        $lastUpdateId = 0;
-        if (file_exists($fileOfLastUpdate)){
-            $lastUpdateId = intval(file_get_contents($fileOfLastUpdate));
-        }
+    /**
+     * @return int
+     */
+    protected function getLastUpdateId()
+    {
+        $storage = $this->getStorage();
+        $key = StorageKeysHolder::getLastUpdateIdKey();
+        $lastUpdateId = intval($storage->get($key));
 
+        return $lastUpdateId;
+    }
+
+    /**
+     * @param int $id
+     */
+    protected function setLastUpdateId(int $id)
+    {
+        $storage = $this->getStorage();
+        $key = StorageKeysHolder::getLastUpdateIdKey();
+        $storage->set($key, $id);
+    }
+
+    public function execute()
+    {
+        $this->fileOfProcess = $this->getLogDir() . '/running';
+        $lastUpdateId = $this->getLastUpdateId();
+        $container = $this->getContainer();
         $fl = $this->start();
-
         if ($fl) {
             $this->setTelegram();
             $commandHandler = new CommandHandler($container, $this);
             if (!empty($this->telegramAdminChatId)){
                 $this->telegram->sendMessage($this->telegramAdminChatId, date("d.m.Y H:i:s") . self::START_MESSAGE);
             }
-            $loopIndex = 0;
             while(true){
                 $updates = $this->telegram->pollUpdates($lastUpdateId, 60);
                 if (isset($updates['result']) && count($updates['result']) > 0){
                     $lastUpdateId = $updates['result'][count($updates['result']) - 1]['update_id'];
                     $lastUpdateId++;
                     // Write down last update id from telegram bot
-                    file_put_contents($fileOfLastUpdate, $lastUpdateId); #TODO this must be replaced on a redis key
+                    $this->setLastUpdateId($lastUpdateId);
                     foreach($updates['result'] as $data){
                         $commandHandler->process($data);
                     }
                 }
-                $loopIndex++;
             }
         }
     }

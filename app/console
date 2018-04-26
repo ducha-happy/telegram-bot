@@ -29,8 +29,8 @@ $action = $argv[1];
 $configLoader = new ConfigLoader();
 
 $container = $configLoader->getContainer();
-$logDir = $container->getParameter('telegram_bot_log_dir');
-$file = $logDir . '/process';
+//$logDir = $container->getParameter('telegram_bot_log_dir');
+$file = Process::getTempDir() . '/telegram_bot_process';
 if (file_exists($file)){
     $process = unserialize(file_get_contents($file));
 }else{
@@ -84,19 +84,19 @@ function stop($process, $file){
 
 /**
  * @param Process $process
+ * @param string $file path/to/file/of/process
  * @return bool
  */
-function status($process){
+function status($process, $file){
     $started = false;
     if ($process->status()){
         echo 'The process is running'; echo "\n";
         $started = true;
     }else{
         echo 'The process is not running'; echo "\n";
-        foreach (array('process', 'running') as $key){
-            $file = __DIR__ . '/logs/' . $key;
-            if (file_exists($file)){
-                unlink($file);
+        foreach (array(__DIR__ . '/logs/running', $file) as $removeFile){
+            if (file_exists($removeFile)){
+                unlink($removeFile);
             }
         }
     }
@@ -177,15 +177,15 @@ function check(Container $container){
 
 switch ($action){
     case "status":
-        status($process);
+        status($process, $file);
         break;
     case "stop":
-        if (status($process)){
+        if (status($process, $file)){
             stop($process, $file);
         }
         break;
     case "restart":
-        if (status($process)){
+        if (status($process, $file)){
             stop($process, $file);
         }
         if (test($container, true)){

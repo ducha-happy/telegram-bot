@@ -25,6 +25,7 @@ namespace Ducha\TelegramBot\Storage;
  * @method static getGroupKey($groupId)
  * @method static getPollMaxIdPattern
  * @method static getPollMaxIdKey
+ * @method static getLastUpdateIdKey
  * @method static getUserPollsPattern
  * @method static getUserPollsKey($userId)
  * @method static getSurveyReplyMessageIdPattern
@@ -43,6 +44,7 @@ class StorageKeysHolder
     private static $pollCreatePattern                         = 'poll.create.%s';
     private static $groupPattern                              = 'group.%s';
     private static $pollMaxIdPattern                          = 'poll.maxId';
+    private static $lastUpdateIdPattern                       = 'last.update.id';
     private static $userPollsPattern                          = 'polls.%s';
     private static $surveyReplyMessageIdPattern               = 'poll.survey.ReplyMessageId.%s';
     private static $completedSurveyReplyMessageIdPattern      = 'poll.completed.ReplyMessageId.%s';

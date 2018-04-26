@@ -19,13 +19,15 @@ class Process
      * Process constructor.
      * @param string|bool $cl
      */
-    public function __construct($cl = false){
+    public function __construct($cl = false)
+    {
         if ($cl != false){
             $this->command = $cl;
         }
     }
 
-    private function runCom(){
+    private function runCom()
+    {
         $command = 'nohup '.$this->command.' > /dev/null 2>&1 & echo $!';
         exec($command ,$op);
         $this->pid = (int)$op[0];
@@ -34,18 +36,21 @@ class Process
     /**
      * @param int $pid
      */
-    public function setPid($pid){
+    public function setPid($pid)
+    {
         $this->pid = $pid;
     }
 
-    public function getPid(){
+    public function getPid()
+    {
         return $this->pid;
     }
 
     /**
      * @return bool
      */
-    public function status(){
+    public function status()
+    {
         if (empty($this->pid)){
             return false;
         }
@@ -59,7 +64,8 @@ class Process
     /**
      * @return bool
      */
-    public function start(){
+    public function start()
+    {
         if ($this->command != ''){
             $this->runCom();
 
@@ -72,7 +78,8 @@ class Process
     /**
      * @return bool
      */
-    public function stop(){
+    public function stop()
+    {
         if (empty($this->pid)){
             return true;
         }
@@ -80,5 +87,17 @@ class Process
         exec($command);
 
         return ($this->status() == false)? true : false;
+    }
+
+    public static function getTempDir()
+    {
+        if (function_exists('sys_get_temp_dir')) {
+            return sys_get_temp_dir();
+        }
+        elseif (is_dir( '/tmp')) {
+            return '/tmp';
+        }
+
+        throw new \LogicException('Can`t find temp dir');
     }
 }

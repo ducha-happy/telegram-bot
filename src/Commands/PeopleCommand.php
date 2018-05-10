@@ -73,8 +73,13 @@ class PeopleCommand extends AbstractCommand
     {
         if ($this->hasMessage($data)){
             $message = $this->getMessage($data);
-            if ($this->stringIsCommand($message->getText()) && $this->isChatTypeAvailable($message->getChatType())){
-                return true;
+            if ($this->stringIsCommand($message->getText())){
+                if ($this->isChatTypeAvailable($message->getChatType())){
+                    return true;
+                }else{
+                    $from = $message->getFrom();
+                    $this->telegram->sendMessage($from['id'], $this->getInListDescription());
+                }
             }
         }
 

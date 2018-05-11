@@ -34,6 +34,8 @@ namespace Ducha\TelegramBot\Storage;
  * @method static getCompletedSurveyReplyMessageIdKey
  * @method static getMenuReplyMessageIdPattern
  * @method static getMenuReplyMessageIdKey($chatId)
+ * @method static getChartPattern
+ * @method static getChartKey($statChatId, $pollId)
  */
 class StorageKeysHolder
 {
@@ -49,6 +51,7 @@ class StorageKeysHolder
     private static $surveyReplyMessageIdPattern               = 'poll.survey.ReplyMessageId.%s';
     private static $completedSurveyReplyMessageIdPattern      = 'poll.completed.ReplyMessageId.%s';
     private static $menuReplyMessageIdPattern                 = 'menu.ReplyMessageId.%s';
+    private static $chartPattern                              = 'chart.%s.%s';
 
     public static function getPrefix()
     {
@@ -91,7 +94,8 @@ class StorageKeysHolder
      * @param array $args
      * @return string
      */
-    public static function sprintf_array($str, $args){
+    public static function sprintf_array($str, $args)
+    {
         $temp = explode('.', $str);
         $placeHolderCount = count(array_keys($temp, '%s'));
         if ($placeHolderCount != count($args)){

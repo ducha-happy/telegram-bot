@@ -139,3 +139,18 @@ parameters:
     proxy : 'user:password@server:port'
     proxy_socks5 : true
 ```
+
+#### Getting statistics with **node** and **highcharts-export-server** module (experiment feature)
+ 
+If you want to get stat of a survey in the form of a graph (chart), you need **node** and **highcharts-export-server** module installed. 
+if you will prefer to have **highcharts-export-server** module installed not globally, you need to prescribe **node_modules_path** parameter in **config.yml**, which must indicate a path to **node_modules** directory.
+Also you need to have **show_charts** parameter in **config.yml**
+
+``` yml
+parameters:
+    ...
+    # show charts 
+    show_charts: true
+    node_modules_path: /path/to/node_modules
+    ...
+```

@@ -1,0 +1,86 @@
+//Include the exporter module
+const exporter = require('highcharts-export-server');
+
+//Export settings 
+var exportSettings = {
+    type: 'png',
+    options: {
+
+       "chart": {
+           "type": "column",
+           "margin": 75,
+           "options3d": {
+               "enabled": true,
+               "alpha": 15,
+               "beta": 15,
+               "depth": 50,
+               "viewDistance": 15
+           },
+           "polar": false,
+           "inverted": false
+       },
+
+       "plotOptions": {
+           "column": {
+               "depth": 25
+           },
+           "series": {
+               "animation": false,
+               "dataLabels": {
+                   "enabled": true
+               }
+           }
+       },
+
+       "title": {
+           "text": "{{ title }}"
+       },
+
+       "subtitle": {
+           "text": "{{ subtitle }}?"
+       },
+
+       "series": {{ series|raw }},
+
+       "yAxis": {
+           "title": {
+               "text": "{{ y_title }}"
+           },
+       },
+
+       "xAxis": {
+           categories: {{ answers|raw }}
+       },
+
+       "credits": {
+           "enabled": false
+       },
+
+       "legend": {
+           "enabled": true
+       },
+    }
+};
+ 
+//Set up a pool of PhantomJS workers
+exporter.initPool();
+
+//Perform an export
+/*
+    Export settings corresponds to the available CLI arguments described
+    above.
+*/
+exporter.export(exportSettings, function (err, res) {
+    //The export result is now in res.
+    //If the output is not PDF or SVG, it will be base64 encoded (res.data).
+    //If the output is a PDF or SVG, it will contain a filename (res.filename).
+    var b64string = res.data;
+    var buf = new Buffer(b64string, 'base64');
+
+    var fs = require("fs");
+    fs.writeFileSync('{{ chart_png_file }}', buf);
+
+    //Kill the pool when we're done with it, and exit the application
+    exporter.killPool();
+    process.exit(1);
+});

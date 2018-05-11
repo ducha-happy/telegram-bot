@@ -19,8 +19,10 @@ use Ducha\TelegramBot\Poll\PollQuestion;
 use Ducha\TelegramBot\Poll\PollStatManagerInterface;
 use Ducha\TelegramBot\Redis\PollSurveyStatManager;
 use Ducha\TelegramBot\Storage\StorageKeysHolder;
+use Ducha\TelegramBot\Telegram;
 use Ducha\TelegramBot\Types\InlineKeyboardButton;
 use Ducha\TelegramBot\Types\InlineKeyboardMarkup;
+use Ducha\TelegramBot\Types\InputMediaPhoto;
 use Ducha\TelegramBot\Types\ReplyKeyboardRemove;
 
 class StartCommand extends AbstractCommand
@@ -251,17 +253,14 @@ class StartCommand extends AbstractCommand
      */
     protected function pollShowStatAction($chatId, $pollId, $statChatId, $uncompleted = null)
     {
+        $statManager = $uncompleted?  $this->surveyStatManager : $this->statManager;
         $adminChatId = $this->handler->getTelegramBot()->getTelegramAdminChatId();
         $poll = $this->pollManager->getPollById($pollId);
         $text = $this->translator->trans('can_not_find_the_statistic', array('%number%' => $pollId));
         if ($poll instanceof Poll){
             $userId = $poll->getUserId();
             if ($userId == $chatId || $chatId == $adminChatId){
-                if ($uncompleted){
-                    $text = $this->surveyStatManager->getStat($statChatId, $pollId);
-                }else{
-                    $text = $this->statManager->getStat($statChatId, $pollId);
-                }
+                $text = $statManager->getStat($statChatId, $pollId);
             }
         }
 
@@ -283,6 +282,44 @@ class StartCommand extends AbstractCommand
         }
 
         $keyboard = json_encode($keyboard);
+
+        // send chart to chat if there is possibility and necessity
+        $showCharts = false;
+        if ($this->handler->getContainer()->hasParameter('show_charts')){
+            $showCharts = (boolean)$this->handler->getContainer()->getParameter('show_charts');
+        }
+
+        if ($showCharts){
+            $key = StorageKeysHolder::getChartKey($statChatId, $pollId);
+            $chart = $this->storage->get($key);
+            if (!empty($chart)){
+                $temp = Telegram::jsonValidate($chart, true);
+                $chartFileId = ''; $fileSize = 0;
+                foreach ($temp as $item){
+                    if ($item['file_size'] > $fileSize){
+                        $chartFileId = $item['file_id'];
+                    }
+                }
+                if (!empty($chartFileId)){
+                    $this->telegram->sendPhoto($chatId, $chartFileId);
+                }
+            }else{
+                $nodePath = null;
+                if ($this->handler->getContainer()->hasParameter('node_modules_path')){
+                    $nodePath = $this->handler->getContainer()->getParameter('node_modules_path');
+                }
+                $chart = $statManager->getChart($statChatId, $pollId, $nodePath); // chart in here is just /path/to/file.png
+                if (!empty($chart)){
+                    $photo = new \CURLFile($chart);
+                    $photo->setMimeType('image/png');
+                    $photo->setPostFilename('photo');
+                    $response = $this->telegram->sendPhoto($chatId, $photo);
+                    if (isset($response['result']['photo'])){
+                        $this->storage->set($key, json_encode($response['result']['photo']));
+                    }
+                }
+            }
+        }
 
         $this->sendResponse($chatId, $text, $keyboard);
     }
@@ -709,7 +746,7 @@ class StartCommand extends AbstractCommand
 
     /**
      * @param int $chatId
-     * @param string $text
+     * @param string|InputMediaPhoto $text
      * @param InlineKeyboardMarkup $keyboard
      * @param bool $start
      */

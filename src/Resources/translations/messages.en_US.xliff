@@ -335,6 +335,16 @@
                 <target>{0}Poll name must not start from the "/" simbol.|{1}Question must not start from the "/" simbol.|{2}Reply must not start from the "/" simbol.</target>
             </trans-unit>
 
+            <trans-unit id="voting_results">
+                <source>voting_results</source>
+                <target>Voting Results</target>
+            </trans-unit>
+
+            <trans-unit id="voted">
+                <source>voted</source>
+                <target>Voted</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

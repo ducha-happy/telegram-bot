@@ -332,6 +332,16 @@
                 <target>{0}Имя опроса не должно начинаться с символа «/».|{1}Вопрос не должен начинаться с символа «/».|{2}Ответ не должен начинаться с символа «/».</target>
             </trans-unit>
 
+            <trans-unit id="voting_results">
+                <source>voting_results</source>
+                <target>Результаты голосования</target>
+            </trans-unit>
+
+            <trans-unit id="voted">
+                <source>voted</source>
+                <target>Проголосовавших</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

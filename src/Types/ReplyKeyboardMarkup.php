@@ -44,7 +44,7 @@ class ReplyKeyboardMarkup implements \JsonSerializable
     {
         foreach ($rows as $row){
             foreach ($row as $button) {
-                if (!is_string($button)){
+                if (!is_string($button) && !$button instanceof KeyboardButton){
                     throw new \LogicException('The button of the keyboard must be string');
                 }
             }

@@ -345,6 +345,49 @@
                 <target>Voted</target>
             </trans-unit>
 
+            <trans-unit id="route_command_description">
+                <source>route_command_description</source>
+                <target>
+                    Find nearest route for a place. This command is only for private chat.
+                    Format: %command_name% latitude,longitude
+                </target>
+            </trans-unit>
+
+            <trans-unit id="route_command.btn_send_location">
+                <source>route_command.btn_send_location</source>
+                <target>Send my location</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.location_is_not_available">
+                <source>route_command.location_is_not_available</source>
+                <target>Your location is not available</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.give_me_location">
+                <source>route_command.give_me_location</source>
+                <target>Your location is needed</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.bad_argument">
+                <source>route_command.bad_argument</source>
+                <target>Argument is not good</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.route_found">
+                <source>route_command.route_found</source>
+                <target>Route from %origin% to %destination% is found: %distance%,%duration%.</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.route_not_found">
+                <source>route_command.route_not_found</source>
+                <target>Route from %origin% to %destination% is not found.</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.photo_caption">
+                <source>route_command.photo_caption</source>
+                <target>Route from %origin% to %destination%.</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

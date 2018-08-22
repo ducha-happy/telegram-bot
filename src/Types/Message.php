@@ -78,6 +78,18 @@ class Message
     }
 
     /**
+     * @return bool|mixed
+     */
+    public function getLocation()
+    {
+        if (isset($this->data['location'])){
+            return $this->data['location'];
+        }
+
+        return false;
+    }
+
+    /**
      * @return string
      */
     public function getFromFirstName()

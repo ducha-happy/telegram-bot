@@ -342,6 +342,49 @@
                 <target>Проголосовавших</target>
             </trans-unit>
 
+            <trans-unit id="route_command_description">
+                <source>route_command_description</source>
+                <target>
+                    Найти ближайший путь до указанного места. Это команда доступна только в частных чатах.
+                    Формат: %command_name% ширина,долгота
+                </target>
+            </trans-unit>
+
+            <trans-unit id="route_command.btn_send_location">
+                <source>route_command.btn_send_location</source>
+                <target>Отправить моё местоположение</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.location_is_not_available">
+                <source>route_command.location_is_not_available</source>
+                <target>Ваше местоположение недоступно</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.give_me_location">
+                <source>route_command.give_me_location</source>
+                <target>Требуется ваше местоположение</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.bad_argument">
+                <source>route_command.bad_argument</source>
+                <target>Плохой аргумент</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.route_found">
+                <source>route_command.route_found</source>
+                <target>Маршрут от %origin% до %destination% найден: %distance%,%duration%.</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.route_not_found">
+                <source>route_command.route_not_found</source>
+                <target>Маршрут от %origin% до %destination% не найден</target>
+            </trans-unit>
+
+            <trans-unit id="route_command.photo_caption">
+                <source>route_command.photo_caption</source>
+                <target>Маршрут от %origin% до %destination%.</target>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

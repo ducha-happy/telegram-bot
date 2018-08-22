@@ -36,6 +36,8 @@ namespace Ducha\TelegramBot\Storage;
  * @method static getMenuReplyMessageIdKey($chatId)
  * @method static getChartPattern
  * @method static getChartKey($statChatId, $pollId)
+ * @method static getRoutePattern
+ * @method static getRouteKey($chatId)
  */
 class StorageKeysHolder
 {
@@ -52,6 +54,7 @@ class StorageKeysHolder
     private static $completedSurveyReplyMessageIdPattern      = 'poll.completed.ReplyMessageId.%s';
     private static $menuReplyMessageIdPattern                 = 'menu.ReplyMessageId.%s';
     private static $chartPattern                              = 'chart.%s.%s';
+    private static $routePattern                              = 'route.%s';
 
     public static function getPrefix()
     {

@@ -15,6 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Symfony\Component\Finder\Finder;
+use Ducha\TelegramBot\JsonFileLoader;
 use Symfony\Component\Translation\Loader\XliffFileLoader;
 use Symfony\Component\Yaml\Yaml;
 
@@ -140,15 +141,7 @@ class ConfigLoader
         }
 
         $translator->setFallbackLocales(array('en_US', 'en'));
-    }
 
-    public function getContainer()
-    {
-        return $this->container;
-    }
-
-    private function setLog()
-    {
         $rootDir = __DIR__ . '/../';
         $parameter1 = 'root_dir';
 
@@ -159,13 +152,41 @@ class ConfigLoader
             }
         }else{
             $this->container->setParameter($parameter1, realpath($rootDir));
+            $rootDir = $this->container->getParameter($parameter1);
         }
 
+        //setting google_maps
+        $file = __DIR__ . '/../app/config/google-maps.json';
+        $loader = new JsonFileLoader();
+        $data = $loader->loadResource($file);
+
+        $apiKeys = array('static_map', 'api_directions');
+        foreach ($apiKeys as $key){
+            if (preg_match("|\%root_dir\%|", $data[$key]['cache_dir'])){
+                $temp = $data[$key]['cache_dir'] = str_replace("%root_dir%", $rootDir, $data[$key]['cache_dir']);
+                if (!file_exists($temp)){
+                    mkdir($temp, 0777, true);
+                }
+                if (!is_writable($temp)){
+                    throw new \LogicException(sprintf('You have logic exception in %s of %s : Directory %s must exist and be writable', __METHOD__, __FILE__, $temp));
+                }
+            }
+        }
+        $this->container->setParameter('google_maps', $data);
+    }
+
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    private function setLog()
+    {
         $logDir = $this->container->getParameter('root_dir') . '/app/logs';
         $parameter2 = 'telegram_bot_log_dir';
 
         if ($this->container->hasParameter($parameter2)){
-            $logDir = str_replace("%" . $parameter1 . "%", $this->container->getParameter($parameter1), $this->container->getParameter($parameter2));
+            $logDir = str_replace("%root_dir%", $this->container->getParameter('root_dir'), $this->container->getParameter($parameter2));
         }
 
         if (!file_exists($logDir)){

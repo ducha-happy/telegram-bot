@@ -1,0 +1,30 @@
+{
+  "static_map": {
+    "url": "https://maps.googleapis.com/maps/api/staticmap",
+    "parameters": {
+      "size" : "640x640",
+      "language" : "ru",
+      "key" : "AIzaSyCK2ST8oA_0PsFuvIs8ouvg4T24prJsVNk"
+    },
+    "markers":{
+      "start_location": {
+        "color":"blue", "label":"O"
+      },
+      "end_location":{
+        "color":"green", "label":"D"
+      }
+    },
+    "path":{
+      "color":"red"
+    },
+    "cache_dir": "%root_dir%/app/cache/static_map"
+  },
+  "api_directions": {
+    "url": "https://maps.googleapis.com/maps/api/directions/json",
+    "parameters":{
+      "language" : "ru",
+      "key" : "AIzaSyCK2ST8oA_0PsFuvIs8ouvg4T24prJsVNk"
+    },
+    "cache_dir": "%root_dir%/app/cache/api_directions"
+  }
+}
